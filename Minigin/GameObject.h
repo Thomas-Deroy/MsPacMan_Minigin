@@ -3,42 +3,34 @@
 #include <vector>
 #include <unordered_map>
 #include <typeindex>
-#include <string>
 #include <algorithm>
 #include "Transform.h"
 #include "Component.h"
-#include "ResourceManager.h"
-#include "Texture2D.h"
 
 namespace dae
 {
     class GameObject final
     {
     public:
-        GameObject() = default;
-        ~GameObject()
-        {
-            for (auto* child : m_Children)
-            {
-                child->m_Parent = nullptr;
-            }
-            m_Children.clear();
-            SetParent(nullptr, false);
-        }
-
+        GameObject();
+        ~GameObject();
 
         void Update(float deltaTime);
         void Render() const;
         void FixedUpdate();
 
-        void SetPosition(float x, float y, float z = 0.0f)
-        {
-            m_transform.SetLocalPosition({ x, y, z });
-            m_transform.SetPositionDirty();
-        }
+        // POSITION
+        void SetPosition(float x, float y, float z = 0.0f);
+        glm::vec3 GetPosition() const;
 
-        Transform& GetTransform() { return m_transform; }
-        const Transform& GetTransform() const { return m_transform; }
+        // TRANSFORM
+        Transform& GetTransform();
+        const Transform& GetTransform() const;
+
+        // VELOCITY
+        void AddVelocity(float x, float y) { m_VelocityX += x; m_VelocityY += y; }
+        void SetVelocity(float x, float y) { m_VelocityX = x; m_VelocityY = y; }
+        void GetVelocity(float& x, float& y) const { x = m_VelocityX; y = m_VelocityY; }
 
         // COMPONENTS
 
@@ -80,54 +72,13 @@ namespace dae
 
         // PARENT-CHILD RELATIONSHIP
 
-        void SetParent(std::shared_ptr<GameObject> parent, bool keepWorldPosition)
-        {
-            if (parent.get() == this || m_Parent == parent.get() || IsChildOf(parent.get()))
-                return;
+        void SetParent(std::shared_ptr<GameObject> parent, bool keepWorldPosition);
+        bool IsChildOf(const GameObject* potentialChild) const;
 
-            glm::vec3 worldPos = m_transform.GetWorldPosition();
-
-            if (m_Parent)
-            {
-                auto& siblings = m_Parent->m_Children;
-                siblings.erase(std::remove(siblings.begin(), siblings.end(), this), siblings.end());
-            }
-
-            m_Parent = parent.get();
-
-            if (m_Parent)
-            {
-                m_Parent->m_Children.push_back(this);
-
-                if (keepWorldPosition)
-                    m_transform.SetLocalPosition(m_Parent->GetTransform().GetWorldPosition());
-            }
-            else m_transform.SetLocalPosition(worldPos);
-
-            m_transform.SetPositionDirty();
-        }
-
-        bool IsChildOf(const GameObject* potentialChild) const
-        {
-            if (m_Parent == nullptr) return false;
-            for (const GameObject* parent = m_Parent; parent != nullptr; parent = parent->m_Parent)
-            {
-                if (parent == potentialChild) return true;
-            }
-            return false;
-        }
-
-
-        GameObject* GetParent() const { return m_Parent; }
-        const std::vector<GameObject*>& GetChildren() const { return m_Children; }
-
-        GameObject* GetChildAt(size_t index) const
-        {
-            if (index >= m_Children.size()) throw std::out_of_range("Child index out of bounds");
-            return m_Children[index];
-        }
-
-        size_t GetChildCount() const { return m_Children.size(); }
+        GameObject* GetParent() const;
+        const std::vector<GameObject*>& GetChildren() const;
+        GameObject* GetChildAt(size_t index) const;
+        size_t GetChildCount() const;
 
     private:
         Transform m_transform{};
@@ -136,5 +87,8 @@ namespace dae
 
         GameObject* m_Parent{ nullptr };
         std::vector<GameObject*> m_Children{};
+
+        float m_VelocityX = 0.0f;
+        float m_VelocityY = 0.0f;
     };
 }

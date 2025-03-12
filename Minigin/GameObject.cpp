@@ -1,31 +1,140 @@
 #include "GameObject.h"
 #include "Component.h"
 #include "RenderComponent.h"
+#include <stdexcept>
+#include "iostream"
 
-void dae::GameObject::Update(float deltaTime)
+namespace dae
 {
-    for (const auto& component : m_Components)
+    GameObject::GameObject() = default;
+
+    GameObject::~GameObject()
     {
-        component->Update(deltaTime);
+        for (auto* child : m_Children)
+        {
+            child->m_Parent = nullptr;
+        }
+        m_Children.clear();
+        SetParent(nullptr, false);
+    }
+
+    void GameObject::Update(float deltaTime)
+    {
+        for (const auto& component : m_Components)
+        {
+            component->Update(deltaTime);
+        }
+
+        //Adding velocity
+        m_transform.SetLocalPosition({
+            m_transform.GetLocalPosition().x + m_VelocityX * deltaTime,
+            m_transform.GetLocalPosition().y + m_VelocityY * deltaTime,
+            m_transform.GetLocalPosition().z
+            });
+
+        m_VelocityX = 0;
+        m_VelocityY = 0;
+    }
+
+    void GameObject::FixedUpdate()
+    {
+        for (const auto& component : m_Components)
+        {
+            component->FixedUpdate();
+        }
+    }
+
+    void GameObject::Render() const
+    {
+        for (const auto& component : m_Components)
+        {
+            component->Render();
+        }
+    }
+
+    // TRANSFORM
+
+    void GameObject::SetPosition(float x, float y, float z)
+    {
+        m_transform.SetLocalPosition({ x, y, z });
+        m_transform.SetPositionDirty();
+    }
+
+    glm::vec3 GameObject::GetPosition() const
+    {
+        return m_transform.GetWorldPosition();
+    }
+
+    Transform& GameObject::GetTransform()
+    {
+        return m_transform;
+    }
+
+    const Transform& GameObject::GetTransform() const
+    {
+        return m_transform;
+    }
+
+    // PARENT-CHILD RELATIONSHIP
+
+    void GameObject::SetParent(std::shared_ptr<GameObject> parent, bool keepWorldPosition)
+    {
+        if (parent.get() == this || m_Parent == parent.get() || IsChildOf(parent.get()))
+            return;
+
+        glm::vec3 worldPos = m_transform.GetWorldPosition();
+
+        if (m_Parent)
+        {
+            auto& siblings = m_Parent->m_Children;
+            siblings.erase(std::remove(siblings.begin(), siblings.end(), this), siblings.end());
+        }
+
+        m_Parent = parent.get();
+
+        if (m_Parent)
+        {
+            m_Parent->m_Children.push_back(this);
+
+            if (keepWorldPosition)
+                m_transform.SetLocalPosition(m_Parent->GetTransform().GetWorldPosition());
+        }
+        else
+        {
+            m_transform.SetLocalPosition(worldPos);
+        }
+
+        m_transform.SetPositionDirty();
+    }
+
+    bool GameObject::IsChildOf(const GameObject* potentialChild) const
+    {
+        if (m_Parent == nullptr) return false;
+        for (const GameObject* parent = m_Parent; parent != nullptr; parent = parent->m_Parent)
+        {
+            if (parent == potentialChild) return true;
+        }
+        return false;
+    }
+
+    GameObject* GameObject::GetParent() const
+    {
+        return m_Parent;
+    }
+
+    const std::vector<GameObject*>& GameObject::GetChildren() const
+    {
+        return m_Children;
+    }
+
+    GameObject* GameObject::GetChildAt(size_t index) const
+    {
+        if (index >= m_Children.size()) throw std::out_of_range("Child index out of bounds");
+        return m_Children[index];
+    }
+
+    size_t GameObject::GetChildCount() const
+    {
+        return m_Children.size();
     }
 }
-
-void dae::GameObject::FixedUpdate()
-{
-    for (const auto& component : m_Components)
-    {
-        component->FixedUpdate();
-    }
-}
-
-void dae::GameObject::Render() const
-{
-    for (const auto& component : m_Components)
-    {
-        component->Render();
-    }
-}
-
-
-
-

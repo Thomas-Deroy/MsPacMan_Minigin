@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "TextComponent.h"
+#include "GameObject.h"
 
 namespace dae
 {

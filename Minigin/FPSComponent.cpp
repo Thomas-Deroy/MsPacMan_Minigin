@@ -1,5 +1,6 @@
 #include "FPSComponent.h"
-#include "GameObject.h"
+#include <iomanip>
+#include <sstream>
 
 dae::FPSComponent::FPSComponent(GameObject* owner, std::shared_ptr<Font> font)
     : Component(owner)
