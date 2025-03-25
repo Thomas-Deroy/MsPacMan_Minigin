@@ -17,16 +17,16 @@ namespace dae
             if (m_Health <= 0)
             {
                 m_Health = 0;
-                EventSystem::GetInstance().Dispatch("PlayerDied");
+                EventSystem::GetInstance().Notify(EventID::PlayerDied);
             }
 
-            EventSystem::GetInstance().Dispatch("HealthChanged");
+            EventSystem::GetInstance().Notify(EventID::HealthChanged);
         }
 
         void Heal(int amount)
         {
             m_Health = std::min(m_Health + amount, m_MaxHealth);
-            EventSystem::GetInstance().Dispatch("HealthChanged");
+            EventSystem::GetInstance().Notify(EventID::HealthChanged);
         }
 
         int GetHealth() const { return m_Health; }

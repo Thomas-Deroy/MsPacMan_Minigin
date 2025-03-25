@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "EventSystem.h"
+#include <steam_api.h>
 
 namespace dae
 {
@@ -14,12 +15,27 @@ namespace dae
         void AddPoints(int amount)
         {
             m_Score += amount;
-            EventSystem::GetInstance().Dispatch("PointsChanged");
+            EventSystem::GetInstance().Notify(EventID::PointsChanged);
+
+            if (m_Score >= 500)
+            {
+				UnlockAchievement("ACH_WIN_ONE_GAME");
+            }
         }
 
         int GetScore() const { return m_Score; }
 
+
+
     private:
         int m_Score;
+
+        void UnlockAchievement(const char* achievementID)
+        {
+            if (SteamUserStats() && SteamUserStats()->SetAchievement(achievementID))
+            {
+                SteamUserStats()->StoreStats();
+            }
+        }
     };
 }
