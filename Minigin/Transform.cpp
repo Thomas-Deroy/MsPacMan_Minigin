@@ -14,8 +14,7 @@ namespace dae
 
 	const glm::vec3& Transform::GetWorldPosition() const
 	{
-		if (m_PositionIsDirty)
-			const_cast<Transform*>(this)->UpdateWorldPosition(); 
+		if (m_PositionIsDirty) const_cast<Transform*>(this)->UpdateWorldPosition();
 
 		return m_WorldPosition;
 	}

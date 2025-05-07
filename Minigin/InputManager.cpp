@@ -6,24 +6,24 @@ namespace dae
 {
     InputManager::InputManager()
     {
-        for (int i = 0; i < 4; ++i)  // 4 Controller slots
+        for (int i = 0; i < 4; ++i)
         {
-            auto gamepad = std::make_shared<Gamepad>(i);
+            auto gamepad = std::make_unique<Gamepad>(i);
             if (gamepad->IsConnected())
             {
-                m_Gamepads.emplace_back(gamepad);
+                m_Gamepads.emplace_back(std::move(gamepad));
             }
         }
     }
 
-    void InputManager::BindCommand(SDL_Keycode key, KeyState state, std::shared_ptr<Command> command)
+    void InputManager::BindCommand(SDL_Keycode key, KeyState state, std::unique_ptr<Command> command)
     {
-        m_KeyboardBindings[key].emplace_back(state, command);
+        m_KeyboardBindings[key].emplace_back(state, std::move(command));
     }
 
-    void InputManager::BindCommand(SDL_GameControllerButton button, KeyState state, std::shared_ptr<Command> command)
+    void InputManager::BindCommand(SDL_GameControllerButton button, KeyState state, std::unique_ptr<Command> command)
     {
-        m_ControllerBindings[button].emplace_back(state, command);
+        m_ControllerBindings[button].emplace_back(state, std::move(command));
     }
 
     void InputManager::RemoveBind(SDL_Keycode key, KeyState state)
@@ -65,7 +65,6 @@ namespace dae
                 return false;
         }
 
-        // Handle Keyboard Input
         const Uint8* state = SDL_GetKeyboardState(nullptr);
         for (auto& [key, bindings] : m_KeyboardBindings)
         {
@@ -87,7 +86,6 @@ namespace dae
             previousKeyStates[key] = keyPressed;
         }
 
-        // Handle Controller Input 
         for (const auto& gamepad : m_Gamepads)
         {
             if (!gamepad->IsConnected())

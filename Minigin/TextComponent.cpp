@@ -4,35 +4,38 @@
 #include "ResourceManager.h"
 #include "GameObject.h"
 
-dae::TextComponent::TextComponent(GameObject* owner, const std::string& text, std::shared_ptr<Font> font)
-    : Component(owner), m_text(text), m_font(std::move(font))
+namespace dae
 {
-    SetText(text);
-}
-
-void dae::TextComponent::Update(float)
-{
-    if (m_needsUpdate)
+    TextComponent::TextComponent(GameObject* owner, const std::string& text, std::shared_ptr<Font> font)
+        : Component(owner), m_text(text), m_font(std::move(font))
     {
-        m_textTexture = ResourceManager::GetInstance().CreateTextTexture(m_text, m_font);
-        m_needsUpdate = false;
+        SetText(text);
     }
-}
 
-void dae::TextComponent::Render() const
-{
-    if (!m_textTexture || !GetOwner())
-        return;
-
-    const auto& worldPos = GetOwner()->GetTransform().GetWorldPosition(); 
-    Renderer::GetInstance().RenderTexture(*m_textTexture, worldPos.x, worldPos.y);
-}
-
-void dae::TextComponent::SetText(const std::string& text)
-{
-    if (m_text != text)
+    void TextComponent::Update(float)
     {
-        m_text = text;
-        m_needsUpdate = true; 
+        if (m_needsUpdate)
+        {
+            m_textTexture = ResourceManager::GetInstance().CreateTextTexture(m_text, m_font);
+            m_needsUpdate = false;
+        }
+    }
+
+    void TextComponent::Render() const
+    {
+        if (!m_textTexture || !GetOwner())
+            return;
+
+        const auto& worldPos = GetOwner()->GetTransform().GetWorldPosition();
+        Renderer::GetInstance().RenderTexture(*m_textTexture, worldPos.x, worldPos.y);
+    }
+
+    void TextComponent::SetText(const std::string& text)
+    {
+        if (m_text != text)
+        {
+            m_text = text;
+            m_needsUpdate = true;
+        }
     }
 }

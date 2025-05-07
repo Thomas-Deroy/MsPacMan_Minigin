@@ -45,12 +45,10 @@ void PrintSDLVersion()
 		version.major, version.minor, version.patch);
 }
 
-dae::Minigin::Minigin(const std::string &dataPath)
-{
+dae::Minigin::Minigin(const std::string& dataPath, int width, int height) {
 	PrintSDLVersion();
-	
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) 
-	{
+
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
 	}
 
@@ -58,17 +56,15 @@ dae::Minigin::Minigin(const std::string &dataPath)
 		"Programming 4 assignment",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		640,
-		480,
+		width,
+		height,
 		SDL_WINDOW_OPENGL
 	);
-	if (g_window == nullptr) 
-	{
+	if (g_window == nullptr) {
 		throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
 	}
 
 	Renderer::GetInstance().Init(g_window);
-
 	ResourceManager::GetInstance().Init(dataPath);
 }
 

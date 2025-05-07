@@ -7,7 +7,7 @@ namespace dae
     class Minigin
     {
     public:
-        explicit Minigin(const std::string& dataPath);
+        Minigin(const std::string& dataPath, int width, int height);
         ~Minigin();
         void Run(const std::function<void()>& load);
 

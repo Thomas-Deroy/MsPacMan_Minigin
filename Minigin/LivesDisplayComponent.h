@@ -1,27 +1,38 @@
 #pragma once
-#include "Component.h"
-#include "EventSystem.h"
-#include "TextComponent.h"
-#include "HealthComponent.h"
 #include "GameObject.h"
+#include "Component.h"
+#include <vector>
+#include <memory>
+#include "Scene.h"
 
 namespace dae
 {
+    class GameObject;
+    class HealthComponent;
+    class RenderComponent;
+
     class LivesDisplayComponent : public Component
     {
-        public:
-            LivesDisplayComponent(GameObject* owner, GameObject* player);
-            ~LivesDisplayComponent() override = default;
+    public:
+        LivesDisplayComponent(GameObject* owner, GameObject* player, Scene* scene);
 
-            void OnPlayerDied();
-            void OnHealthChanged();
+        void SetIconSpacing(float spacing);
 
-        private:
-            void UpdateText();
+    private:
+        void OnPlayerDied();
+        void OnHealthChanged();
+        void UpdateRender();
+        void AddLifeIcon(int index);
+        void RemoveLifeIcon();
 
-            GameObject* m_Player;
-            TextComponent* m_TextComponent{ nullptr };
-            HealthComponent* m_HealthComponent{ nullptr };
-            int m_Lives{ 0 };
-        };
+        Scene* m_Scene{ nullptr };
+        GameObject* m_Player;
+        std::vector<GameObject*> m_LifeIcons;
+
+        float m_IconSpacing{ 24.0f };
+
+        RenderComponent* m_RenderComponent{ nullptr };
+        HealthComponent* m_HealthComponent{ nullptr };
+        int m_Lives{ 0 };
+    };
 }

@@ -9,6 +9,26 @@
 
 namespace dae
 {
+    enum class Tag : uint32_t
+    {
+        None = 0,
+        Static = 1 << 0,
+        Player = 1 << 1,
+        Enemy = 1 << 2,
+        Friendly = 1 << 3,
+        Consumable = 1 << 4,
+    };
+
+    inline Tag operator|(Tag a, Tag b)
+    {
+        return static_cast<Tag>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+    }
+
+    inline bool HasTag(Tag tags, Tag tagToCheck)
+    {
+        return (static_cast<uint32_t>(tags) & static_cast<uint32_t>(tagToCheck)) != 0;
+    }
+
     class GameObject final
     {
     public:
@@ -22,6 +42,7 @@ namespace dae
         // POSITION
         void SetPosition(float x, float y, float z = 0.0f);
         glm::vec3 GetPosition() const;
+        glm::vec3 m_PreviousPosition{};
 
         // TRANSFORM
         Transform& GetTransform();
@@ -32,8 +53,16 @@ namespace dae
         void SetVelocity(float x, float y) { m_VelocityX = x; m_VelocityY = y; }
         void GetVelocity(float& x, float& y) const { x = m_VelocityX; y = m_VelocityY; }
 
-        // COMPONENTS
+		// TAGS
+        void AddTag(Tag tag) { m_Tags = m_Tags | tag; }
+        void RemoveTag(Tag tag) { m_Tags = static_cast<Tag>(static_cast<uint32_t>(m_Tags) & ~static_cast<uint32_t>(tag)); }
+        bool HasTag(Tag tag) const { return dae::HasTag(m_Tags, tag); }
+        
+		// MARK FOR DESTROY
+        void MarkForDestroy() { m_MarkedForDestroy = true; }
+        bool IsMarkedForDestroy() const { return m_MarkedForDestroy; }
 
+        // COMPONENTS
         template <typename T, typename... Args>
         T* AddComponent(Args&&... args)
         {
@@ -69,14 +98,14 @@ namespace dae
                     }), m_Components.end());
             }
         }
-
+        
         // PARENT-CHILD RELATIONSHIP
-
-        void SetParent(std::shared_ptr<GameObject> parent, bool keepWorldPosition);
+        void SetParent(GameObject* parent, bool keepWorldPosition);
         bool IsChildOf(const GameObject* potentialChild) const;
 
         GameObject* GetParent() const;
         const std::vector<GameObject*>& GetChildren() const;
+        std::vector<GameObject*>& GetChildren();
         GameObject* GetChildAt(size_t index) const;
         size_t GetChildCount() const;
 
@@ -84,6 +113,9 @@ namespace dae
         Transform m_transform{};
         std::vector<std::unique_ptr<Component>> m_Components{};
         std::unordered_map<std::type_index, Component*> m_ComponentMap{};
+
+        Tag m_Tags = Tag::None;
+        bool m_MarkedForDestroy = false;
 
         GameObject* m_Parent{ nullptr };
         std::vector<GameObject*> m_Children{};

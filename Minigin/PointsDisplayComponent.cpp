@@ -11,11 +11,10 @@ namespace dae
         if (m_PointsComponent)
         {
             m_Score = m_PointsComponent->GetScore();
+            EventSystem::GetInstance().Subscribe(m_PointsComponent->GetPointsChangedEvent(), [this](const Event&) { OnPointsChanged(); });
         }
 
         UpdateText();
-
-        EventSystem::GetInstance().Subscribe(EventID::PointsChanged, [this]() { OnPointsChanged(); });
     }
 
     void PointsDisplayComponent::OnPointsChanged()
@@ -31,7 +30,7 @@ namespace dae
     {
         if (m_TextComponent)
         {
-            m_TextComponent->SetText("Score: " + std::to_string(m_Score));
+            m_TextComponent->SetText(std::to_string(m_Score));
         }
     }
 }

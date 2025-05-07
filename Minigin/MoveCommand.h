@@ -2,26 +2,29 @@
 #include "Command.h"
 #include "GameObject.h"
 #include <glm.hpp>
+#include "MovementComponent.h"
 
 namespace dae
 {
     class MoveCommand : public Command
     {
     public:
-        MoveCommand(std::shared_ptr<GameObject> gameObject, glm::vec2 direction, float speed)
-            : m_GameObject(std::move(gameObject)), m_Direction(direction), m_Speed(speed) {
+        MoveCommand(GameObject* gameObject, const glm::vec2& direction)
+            : m_GameObject(gameObject), m_Direction(direction) {
         }
 
         void Execute() override
         {
             if (!m_GameObject) return;
 
-            m_GameObject->AddVelocity(m_Direction.x * m_Speed, m_Direction.y * m_Speed);
+            auto moveComp = m_GameObject->GetComponent<MovementComponent>();
+            if (!moveComp) return;
+
+            moveComp->SetNextDirection(m_Direction); 
         }
 
     private:
-        std::shared_ptr<GameObject> m_GameObject;
+        GameObject* m_GameObject;
         glm::vec2 m_Direction;
-        float m_Speed;
     };
 }

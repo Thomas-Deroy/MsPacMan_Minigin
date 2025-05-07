@@ -14,6 +14,7 @@ namespace dae
             ~PointsDisplayComponent() override = default;
 
             void OnPointsChanged();
+			int GetScore() const { return m_Score; }
 
         private:
             void UpdateText();

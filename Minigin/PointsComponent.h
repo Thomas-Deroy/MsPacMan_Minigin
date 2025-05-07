@@ -1,41 +1,28 @@
 #pragma once
 #include "Component.h"
 #include "EventSystem.h"
-#include <steam_api.h>
 
 namespace dae
 {
     class PointsComponent : public Component
     {
     public:
-        PointsComponent(GameObject* owner)
-            : Component(owner), m_Score(0) {
+        PointsComponent(GameObject* owner, EventId pointsChangedEvent)
+            : Component(owner), m_Score(0), m_PointsChangedEvent(pointsChangedEvent) {
         }
 
         void AddPoints(int amount)
         {
             m_Score += amount;
-            EventSystem::GetInstance().Notify(EventID::PointsChanged);
-
-            if (m_Score >= 500)
-            {
-				UnlockAchievement("ACH_WIN_ONE_GAME");
-            }
+            EventSystem::GetInstance().Notify(Event{ m_PointsChangedEvent });
         }
 
         int GetScore() const { return m_Score; }
 
-
+        EventId GetPointsChangedEvent() const { return m_PointsChangedEvent; }
 
     private:
         int m_Score;
-
-        void UnlockAchievement(const char* achievementID)
-        {
-            if (SteamUserStats() && SteamUserStats()->SetAchievement(achievementID))
-            {
-                SteamUserStats()->StoreStats();
-            }
-        }
+        EventId m_PointsChangedEvent;
     };
 }

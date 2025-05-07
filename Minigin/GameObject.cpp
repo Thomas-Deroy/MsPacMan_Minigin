@@ -2,20 +2,26 @@
 #include "Component.h"
 #include "RenderComponent.h"
 #include <stdexcept>
-#include "iostream"
+#include <iostream>
 
 namespace dae
 {
-    GameObject::GameObject() = default;
+    GameObject::GameObject()
+    {
+        m_transform.m_Owner = this;
+    }
 
     GameObject::~GameObject()
     {
+        SetParent(nullptr, false);
+
         for (auto* child : m_Children)
         {
             child->m_Parent = nullptr;
         }
         m_Children.clear();
-        SetParent(nullptr, false);
+
+        m_transform.m_Owner = nullptr;
     }
 
     void GameObject::Update(float deltaTime)
@@ -25,7 +31,8 @@ namespace dae
             component->Update(deltaTime);
         }
 
-        //Adding velocity
+        m_PreviousPosition = GetPosition();
+
         m_transform.SetLocalPosition({
             m_transform.GetLocalPosition().x + m_VelocityX * deltaTime,
             m_transform.GetLocalPosition().y + m_VelocityY * deltaTime,
@@ -52,8 +59,6 @@ namespace dae
         }
     }
 
-    // TRANSFORM
-
     void GameObject::SetPosition(float x, float y, float z)
     {
         m_transform.SetLocalPosition({ x, y, z });
@@ -75,11 +80,9 @@ namespace dae
         return m_transform;
     }
 
-    // PARENT-CHILD RELATIONSHIP
-
-    void GameObject::SetParent(std::shared_ptr<GameObject> parent, bool keepWorldPosition)
+    void GameObject::SetParent(GameObject* parent, bool keepWorldPosition)
     {
-        if (parent.get() == this || m_Parent == parent.get() || IsChildOf(parent.get()))
+        if (parent == this || m_Parent == parent || IsChildOf(parent))
             return;
 
         glm::vec3 worldPos = m_transform.GetWorldPosition();
@@ -90,14 +93,14 @@ namespace dae
             siblings.erase(std::remove(siblings.begin(), siblings.end(), this), siblings.end());
         }
 
-        m_Parent = parent.get();
+        m_Parent = parent;
 
         if (m_Parent)
         {
             m_Parent->m_Children.push_back(this);
 
             if (keepWorldPosition)
-                m_transform.SetLocalPosition(m_Parent->GetTransform().GetWorldPosition());
+                m_transform.SetLocalPosition(worldPos - m_Parent->GetTransform().GetWorldPosition());
         }
         else
         {
@@ -107,12 +110,13 @@ namespace dae
         m_transform.SetPositionDirty();
     }
 
-    bool GameObject::IsChildOf(const GameObject* potentialChild) const
+    bool GameObject::IsChildOf(const GameObject* potentialParent) const
     {
-        if (m_Parent == nullptr) return false;
-        for (const GameObject* parent = m_Parent; parent != nullptr; parent = parent->m_Parent)
+        if (!potentialParent) return false;
+        for (auto* p = m_Parent; p != nullptr; p = p->m_Parent)
         {
-            if (parent == potentialChild) return true;
+            if (p == potentialParent)
+                return true;
         }
         return false;
     }
@@ -123,6 +127,11 @@ namespace dae
     }
 
     const std::vector<GameObject*>& GameObject::GetChildren() const
+    {
+        return m_Children;
+    }
+
+    std::vector<GameObject*>& GameObject::GetChildren()
     {
         return m_Children;
     }

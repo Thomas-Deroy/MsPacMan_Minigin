@@ -36,14 +36,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Minigin.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>Source Files\Objects\Components</Filter>
     </ClCompile>
     <ClCompile Include="RenderComponent.cpp">
       <Filter>Source Files\Objects\Components</Filter>
@@ -90,11 +84,17 @@
     <ClCompile Include="EventSystem.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="LivesDisplayComponent.cpp">
+    <ClCompile Include="SDLSoundSystem.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteComponent.cpp">
       <Filter>Source Files\Objects\Components</Filter>
     </ClCompile>
-    <ClCompile Include="PointsDisplayComponent.cpp">
+    <ClCompile Include="ColliderComponent.cpp">
       <Filter>Source Files\Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -149,38 +149,35 @@
     <ClInclude Include="Gamepad.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="HealthComponent.h">
-      <Filter>Header Files\Objects\Components</Filter>
-    </ClInclude>
     <ClInclude Include="EventSystem.h">
       <Filter>Header Files\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="LivesDisplayComponent.h">
-      <Filter>Header Files\Objects\Components</Filter>
     </ClInclude>
     <ClInclude Include="Command.h">
       <Filter>Header Files\Engine\Commands</Filter>
     </ClInclude>
-    <ClInclude Include="MoveCommand.h">
-      <Filter>Header Files\Engine\Commands</Filter>
+    <ClInclude Include="SoundSystem.h">
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="TakeDamageCommand.h">
-      <Filter>Header Files\Engine\Commands</Filter>
+    <ClInclude Include="ServiceLocator.h">
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="PointsComponent.h">
+    <ClInclude Include="SDLSoundSystem.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="NullSoundSystem.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteComponent.h">
       <Filter>Header Files\Objects\Components</Filter>
     </ClInclude>
-    <ClInclude Include="PointsDisplayComponent.h">
+    <ClInclude Include="ColliderComponent.h">
       <Filter>Header Files\Objects\Components</Filter>
     </ClInclude>
-    <ClInclude Include="AddPointsCommand.h">
-      <Filter>Header Files\Engine\Commands</Filter>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\3rdParty\steamworks\public\steam\steam_api.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResetAchievementCommand.h">
-      <Filter>Header Files\Engine\Commands</Filter>
+    <ClInclude Include="EngineEvents.h">
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

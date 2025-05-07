@@ -1,13 +1,14 @@
 #pragma once
 #include "Command.h"
 #include "PointsComponent.h"
+#include <memory>
 
 namespace dae
 {
     class AddPointsCommand : public Command
     {
     public:
-        AddPointsCommand(std::shared_ptr<GameObject> player, int points)
+        AddPointsCommand(GameObject* player, int points)
             : m_Player(player), m_Points(points) {
         }
 
@@ -24,7 +25,7 @@ namespace dae
         }
 
     private:
-        std::shared_ptr<GameObject> m_Player;
+        GameObject* m_Player;
         int m_Points;
     };
 }

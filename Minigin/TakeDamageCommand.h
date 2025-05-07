@@ -1,13 +1,16 @@
 #pragma once
 #include "Command.h"
 #include "HealthComponent.h"
+#include "SDLSoundSystem.h"
+#include "ServiceLocator.h"
+#include <memory>
 
 namespace dae
 {
     class TakeDamageCommand : public Command
     {
     public:
-        TakeDamageCommand(std::shared_ptr<GameObject> player, int damage)
+        TakeDamageCommand(GameObject* player, int damage)
             : m_Player(player), m_Damage(damage) {
         }
 
@@ -24,7 +27,7 @@ namespace dae
         }
 
     private:
-        std::shared_ptr<GameObject> m_Player;
+        GameObject* m_Player;
         int m_Damage;
     };
 }

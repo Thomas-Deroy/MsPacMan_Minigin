@@ -24,5 +24,7 @@ namespace dae
 		glm::vec3 m_LocalPosition{};
 		glm::vec3 m_WorldPosition{};
 		bool m_PositionIsDirty{ true };
+
+		friend class GameObject;
 	};
 }

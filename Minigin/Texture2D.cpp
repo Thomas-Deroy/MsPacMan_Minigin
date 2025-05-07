@@ -16,6 +16,20 @@ glm::ivec2 dae::Texture2D::GetSize() const
 	return { dst.w,dst.h };
 }
 
+int dae::Texture2D::GetWidth() const
+{
+	int w, h;
+	SDL_QueryTexture(m_texture, nullptr, nullptr, &w, &h);
+	return w;
+}
+
+int dae::Texture2D::GetHeight() const
+{
+	int w, h;
+	SDL_QueryTexture(m_texture, nullptr, nullptr, &w, &h);
+	return h;
+}
+
 SDL_Texture* dae::Texture2D::GetSDLTexture() const
 {
 	return m_texture;
