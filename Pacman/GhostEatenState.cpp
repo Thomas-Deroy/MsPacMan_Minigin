@@ -1,0 +1,71 @@
+#include "GhostEatenState.h"
+#include "GhostScatterState.h"
+#include "GhostAIComponent.h"
+#include "MovementComponent.h"
+
+namespace dae {
+
+    void GhostEatenState::Enter(GhostAIComponent& ghost) {
+        ghost.ResetStateTimer();
+
+        ghost.GetMovement()->SetSpeedMultiplier(2.0f);
+        ghost.GetMovement()->SetIgnoreNodePreferences(true);
+        ghost.GetSprite()->SetAnimationRow(5);
+    }
+
+    void GhostEatenState::Update(GhostAIComponent& ghost, float) {
+        glm::vec2 ghostPos = ghost.GetOwner()->GetTransform().GetWorldPosition();
+
+        if (ghost.GetDirectionCooldown() <= 0.f)
+        {
+            auto target = GetTargetPosition(ghost);
+            auto dir = ghost.ChooseDirectionToward(target);
+            if (dir != glm::vec2(0, 0))
+            {
+                ghost.GetLastDirection() = dir;
+                ghost.GetMovement()->SetNextDirection(dir);
+                ghost.SetDirectionCooldown(0.15f);
+				//std::cout << ghost.GetMovement()->GetTargetNode() << " AND " << ghost.GetMovement()->GetTargetDestination() << std::endl;
+                if (ghost.GetMovement()->GetTargetDestination())
+                {
+                    glm::vec2 destPos = ghost.GetMovement()->GetTargetDestination()->position;
+
+                    float distance = glm::length(ghostPos - destPos);
+
+                    if (distance < 2.0f) 
+                    {
+                        ghost.QueueStateChange(std::make_unique<GhostScatterState>());
+                    }
+                }
+            }
+        }
+    }
+
+    void GhostEatenState::Exit(GhostAIComponent& ghost) {
+        ghost.GetMovement()->SetSpeedMultiplier(1.0f);
+        ghost.GetMovement()->SetIgnoreNodePreferences(false);
+
+        switch (ghost.GetType())
+        {
+        case GhostType::Blinky:
+            ghost.GetSprite()->SetAnimationRow(0);
+            break;
+        case GhostType::Pinky:
+            ghost.GetSprite()->SetAnimationRow(1);
+            break;
+        case GhostType::Inky:
+            ghost.GetSprite()->SetAnimationRow(2);
+            break;
+        case GhostType::Clyde:
+            ghost.GetSprite()->SetAnimationRow(3);
+            break;
+        default:
+            break;
+        }
+    }
+
+    glm::vec2 GhostEatenState::GetTargetPosition(const GhostAIComponent&) const {
+        return { 112, 136 };
+    }
+
+}

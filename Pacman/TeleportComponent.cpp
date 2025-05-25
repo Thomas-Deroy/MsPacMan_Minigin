@@ -3,9 +3,10 @@
 
 namespace dae
 {
-	TeleportComponent::TeleportComponent(GameObject* owner, float leftBound, float rightBound)
-		: Component(owner), m_LeftBound(leftBound), m_RightBound(rightBound)
+	TeleportComponent::TeleportComponent(GameObject* owner, float leftBound, float rightBound, LevelBuilder* builder)
+		: Component(owner), m_LeftBound(leftBound), m_RightBound(rightBound), m_LevelBuilder(builder)
 	{
+		m_MovementComponent = owner->GetComponent<MovementComponent>();
 	}
 
 	void TeleportComponent::Update(float)
@@ -16,11 +17,17 @@ namespace dae
 		{
 			pos.x = m_RightBound;
 			GetOwner()->GetTransform().SetLocalPosition(pos);
+			m_MovementComponent->SetTargetNode(nullptr);
+			m_MovementComponent->FindAndSetStartNode(m_LevelBuilder);
 		}
-		else if (pos.x > m_RightBound)
+
+		if (pos.x > m_RightBound)
 		{
+			std::cout << "Teleporting left" << std::endl;
 			pos.x = m_LeftBound;
 			GetOwner()->GetTransform().SetLocalPosition(pos);
+			m_MovementComponent->SetTargetNode(nullptr);
+			m_MovementComponent->FindAndSetStartNode(m_LevelBuilder);
 		}
 	}
 }

@@ -2,6 +2,8 @@
 
 namespace dae {
     class Scene;
+	class SceneManager;
+	class LevelManager;
 
 	enum class GameMode
 	{
@@ -11,5 +13,5 @@ namespace dae {
 	};
 }
 
-void LoadMenuScene(dae::Scene& scene);
+void LoadMenuScene(dae::Scene& scene, dae::SceneManager& sceneManager, dae::LevelManager& levelManager);
 

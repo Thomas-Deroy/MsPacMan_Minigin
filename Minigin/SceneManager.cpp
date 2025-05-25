@@ -36,3 +36,17 @@ dae::Scene& dae::SceneManager::CreateScene(const std::string& name)
 
 	return ref;
 }
+
+dae::Scene& dae::SceneManager::GetScene(const std::string& name)
+{
+	for (const auto& scene : m_scenes)
+	{
+		if (scene->GetName() == name)
+		{
+			return *scene;
+		}
+	}
+
+	throw std::runtime_error("Scene with name '" + name + "' not found.");
+}
+

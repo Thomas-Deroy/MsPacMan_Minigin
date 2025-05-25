@@ -3,216 +3,316 @@
 const int WIDTH = 448;
 const int HEIGHT = 576;
 
-void LoadGameScene(dae::Scene& scene, dae::SceneManager& sceneManager, dae::GameMode)
+void LoadGameScene(dae::Scene& scene, dae::SceneManager& sceneManager, dae::LevelManager& levelManager, dae::GameMode gameMode)
 {
-	// --- ENGINE --- //
+	if (sceneManager.GetActiveSceneName() == "Game")
+	{
+		// --- ENGINE --- //
 
-	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 18);
-	auto retroFont = dae::ResourceManager::GetInstance().LoadFont("RetroFont.ttf", 18);
-	auto& input = dae::InputManager::GetInstance();
-	auto& event = EventSystem::GetInstance();
-	auto& soundSystem = dae::ServiceLocator::GetSoundSystem();
+		auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 18);
+		auto retroFont = dae::ResourceManager::GetInstance().LoadFont("RetroFont.ttf", 18);
+		auto& input = dae::InputManager::GetInstance();
+		input.RequestClearAllBinds();
+		auto& event = EventSystem::GetInstance();
+		auto& soundSystem = dae::ServiceLocator::GetSoundSystem();
 
-	// --- GAME --- //
+		// --- GAME --- //
 
-	auto& highScoreManager = HighScoreManager::GetInstance();
-	highScoreManager.ReadHighScore();
+		auto& highScoreManager = HighScoreManager::GetInstance();
+		highScoreManager.ReadHighScore();
 
-	soundSystem.LoadSound(1, "../Data/MSPC_Siren0.wav");
-	soundSystem.LoadSound(2, "../Data/MSPC_EatDot.wav");
-	if (sceneManager.GetActiveSceneName() == "Game") soundSystem.Play(1, 0.5f, true);
+		soundSystem.LoadSound(1, "../Data/MSPC_Siren0.wav");
+		soundSystem.LoadSound(2, "../Data/MSPC_EatDot.wav");
+		soundSystem.Play(1, 0.2f, true);
 
-	// LEVEL
-	auto go = std::make_unique<dae::GameObject>();
-	go->AddComponent<dae::RenderComponent>("MSPC_Level1.tga", 2.0f);
-	go->SetPosition(0.f, 40.f);
-	scene.Add(go);
+		// --- LEVEL --- //
 
-	static dae::LevelBuilder builder;
-	builder.LoadLevelFromFile("../Data/Level1.txt", &scene, -0.4f, -0.4f);
+		//auto go = std::make_unique<dae::GameObject>();
+		//go->AddComponent<dae::RenderComponent>("MSPC_Level1.tga", 2.0f);
+		//go->SetPosition(0.f, 40.f);
+		//scene.Add(go);
 
-	auto highScoreText = std::make_unique<dae::GameObject>();
-	highScoreText->AddComponent<dae::TextComponent>("HIGH SCORE", retroFont);
-	highScoreText->SetPosition((WIDTH / 2) - 75.f, 1.0f);
-	scene.Add(highScoreText);
+		levelManager.LoadLevelManager(&scene, 1);
+		dae::LevelBuilder* builder = levelManager.GetLevelBuilder();
 
-	auto highScore = std::make_unique<dae::GameObject>();
-	highScore->AddComponent<dae::TextComponent>(highScoreManager.GetTopScoreDisplay(), retroFont);
-	highScore->SetPosition((WIDTH / 2) - 50.f, 20.0f);
-	scene.Add(highScore);
+		auto highScoreText = std::make_unique<dae::GameObject>();
+		highScoreText->AddComponent<dae::TextComponent>("HIGH SCORE", retroFont);
+		highScoreText->SetPosition((WIDTH / 2) - 75.f, 1.0f);
+		scene.Add(highScoreText);
 
-	// DAE STUFF
-	go = std::make_unique<dae::GameObject>();
-	go->AddComponent<dae::RenderComponent>("logo.tga", 0.4f);
-	go->SetPosition((WIDTH / 2) - 40.f, (HEIGHT / 2) - 25.f);
-	scene.Add(go);
+		auto highScore = std::make_unique<dae::GameObject>();
+		highScore->AddComponent<dae::TextComponent>(highScoreManager.GetTopScoreDisplay(), retroFont);
+		highScore->SetPosition((WIDTH / 2) - 50.f, 20.0f);
+		scene.Add(highScore);
 
-	auto to = std::make_unique<dae::GameObject>();
-	to->AddComponent<dae::TextComponent>("Programming 4 Assignment", font);
-	to->SetPosition((WIDTH / 2) - 115.0f, 215.0f);
-	scene.Add(to);
+		auto blackScreen = std::make_unique<dae::GameObject>();
+		blackScreen->AddComponent<dae::RenderComponent>("MSPC_BlackScreen.tga", 2.0f);
+		blackScreen->SetPosition(0.f, 40.f);
+		blackScreen->GetComponent<dae::RenderComponent>()->SetVisible(false);
+		scene.Add(blackScreen);
 
-	auto fpsCounter = std::make_unique<dae::GameObject>();
-	fpsCounter->SetPosition(350, 10);
-	fpsCounter->AddComponent<dae::FPSComponent>(font);
-	scene.Add(fpsCounter);
 
-	// --- GHOSTS --- //
+		// --- DAE WATERMARK --- //
 
-	auto blinky = std::make_unique<dae::GameObject>();
-	blinky->SetPosition(150, 200);
-	blinky->AddComponent<dae::SpriteComponent>("MSPC_Ghost_Spritesheet.tga", 6, 4, 0.1f, 2.0f);
-	blinky->GetComponent<dae::SpriteComponent>()->SetAnimationColumn(0);
-	blinky->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Enemy, false, true);
-	blinky->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Ghost);
-	blinky->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(&builder);
+		auto go = std::make_unique<dae::GameObject>();
+		go->AddComponent<dae::RenderComponent>("logo.tga", 0.4f);
+		go->SetPosition((WIDTH / 2) - 40.f, (HEIGHT / 2) - 25.f);
+		scene.Add(go);
 
-	auto pinky = std::make_unique<dae::GameObject>();
-	pinky->SetPosition(100, 200);
-	pinky->AddComponent<dae::SpriteComponent>("MSPC_Ghost_Spritesheet.tga", 6, 4, 0.1f, 2.0f);
-	pinky->GetComponent<dae::SpriteComponent>()->SetAnimationColumn(0);
-	pinky->GetComponent<dae::SpriteComponent>()->SetAnimationRow(1);
-	pinky->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Enemy, false, true);
-	pinky->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Ghost);
-	pinky->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(&builder);
+		auto to = std::make_unique<dae::GameObject>();
+		to->AddComponent<dae::TextComponent>("Programming 4 Assignment", font);
+		to->SetPosition((WIDTH / 2) - 115.0f, 215.0f);
+		scene.Add(to);
 
-	auto inky = std::make_unique<dae::GameObject>();
-	inky->SetPosition(200, 200);
-	inky->AddComponent<dae::SpriteComponent>("MSPC_Ghost_Spritesheet.tga", 6, 4, 0.1f, 2.0f);
-	inky->GetComponent<dae::SpriteComponent>()->SetAnimationColumn(0);
-	inky->GetComponent<dae::SpriteComponent>()->SetAnimationRow(2);
-	inky->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Enemy, false, true);
-	inky->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Ghost);
-	inky->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(&builder);
+		auto fpsCounter = std::make_unique<dae::GameObject>();
+		fpsCounter->SetPosition(350, 10);
+		fpsCounter->AddComponent<dae::FPSComponent>(font);
+		scene.Add(fpsCounter);
 
-	auto clyde = std::make_unique<dae::GameObject>();
-	clyde->SetPosition(150, 250);
-	clyde->AddComponent<dae::SpriteComponent>("MSPC_Ghost_Spritesheet.tga", 6, 4, 0.1f, 2.0f);
-	clyde->GetComponent<dae::SpriteComponent>()->SetAnimationColumn(0);
-	clyde->GetComponent<dae::SpriteComponent>()->SetAnimationRow(3);
-	clyde->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Enemy, false, true);
-	clyde->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Ghost);
-	clyde->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(&builder);
+		// --- GHOSTS --- //
 
-	// --- PACMAN & MsPACMAN --- //
+		auto blinky = std::make_unique<dae::GameObject>(); // Red Ghost
+		auto blinkyPtr = blinky.get();
+		blinky->SetPosition(150, 200);
+		blinky->AddComponent<dae::SpriteComponent>("MSPC_Ghost_Spritesheet.tga", 6, 4, 0.1f, 2.0f);
+		blinky->GetComponent<dae::SpriteComponent>()->SetLooping(false);
+		blinky->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Enemy, false, true);
+		blinky->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Ghost, builder);
+		blinky->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builder);
 
-	auto pacman = std::make_unique<dae::GameObject>();
-	auto pacmanPtr = pacman.get();
-	pacman->AddComponent<dae::SpriteComponent>("MSPC_Pacman_Spritesheet.tga", 4, 3, 0.1f, 2.0f);
-	pacman->SetPosition(200, 304);
-	pacman->AddComponent<dae::HealthComponent>(3, HealthChanged, PlayerDied);
-	pacman->AddComponent<dae::PointsComponent>(PointsChanged);
-	pacman->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Friendly, true, true);
-	pacman->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Pacman);
-	pacman->AddComponent<dae::TeleportComponent>(-32.f, static_cast<float>(WIDTH));
-	pacman->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(&builder);
-	scene.Add(pacman);
+		auto pinky = std::make_unique<dae::GameObject>(); // Pink Ghost
+		auto pinkyPtr = pinky.get();
+		pinky->SetPosition(100, 200);
+		pinky->AddComponent<dae::SpriteComponent>("MSPC_Ghost_Spritesheet.tga", 6, 4, 0.1f, 2.0f);
+		pinky->GetComponent<dae::SpriteComponent>()->SetLooping(false);
+		pinky->GetComponent<dae::SpriteComponent>()->SetAnimationRow(1);
+		pinky->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Enemy, false, true);
+		pinky->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Ghost, builder);
+		pinky->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builder);
 
-	auto mspacman = std::make_unique<dae::GameObject>();
-	auto mspacmanPtr = mspacman.get();
-	mspacman->AddComponent<dae::SpriteComponent>("MSPC_Mspacman_Spritesheet.tga", 4, 3, 0.1f, 2.0f);
-	mspacman->SetPosition(208.f, 400.f);
-	mspacman->AddComponent<dae::HealthComponent>(3, HealthChanged, PlayerDied);
-	mspacman->AddComponent<dae::PointsComponent>(PointsChanged);
-	mspacman->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Friendly, true, true);
-	mspacman->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Pacman);
-	mspacman->AddComponent<dae::TeleportComponent>(-32.0f, static_cast<float>(WIDTH));
-	//mspacman->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(&builder);
-	scene.Add(mspacman);
+		auto inky = std::make_unique<dae::GameObject>(); // Cyan Ghost
+		auto inkyPtr = inky.get();
+		inky->SetPosition(200, 200);
+		inky->AddComponent<dae::SpriteComponent>("MSPC_Ghost_Spritesheet.tga", 6, 4, 0.1f, 2.0f);
+		inky->GetComponent<dae::SpriteComponent>()->SetLooping(false);
+		inky->GetComponent<dae::SpriteComponent>()->SetAnimationRow(2);
+		inky->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Enemy, false, true);
+		inky->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Ghost, builder);
+		inky->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builder);
 
-	// --- ADD GHOSTS --- //
+		auto clyde = std::make_unique<dae::GameObject>(); // Orange Ghost
+		auto clydePtr = clyde.get();
+		clyde->SetPosition(150, 200);
+		clyde->AddComponent<dae::SpriteComponent>("MSPC_Ghost_Spritesheet.tga", 6, 4, 0.1f, 2.0f);
+		clyde->GetComponent<dae::SpriteComponent>()->SetLooping(false);
+		clyde->GetComponent<dae::SpriteComponent>()->SetAnimationRow(3);
+		clyde->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Enemy, false, true);
+		clyde->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Ghost, builder);
+		clyde->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builder);
 
-	clyde->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Clyde);
-	scene.Add(clyde);
-	inky->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Inky);
-	scene.Add(inky);
-	pinky->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Pinky);
-	scene.Add(pinky);
-	blinky->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Blinky);
-	scene.Add(blinky);
+		// --- PACMAN & MsPACMAN --- //
 
-	// EVENTS
+		auto pacman = std::make_unique<dae::GameObject>();
+		auto pacmanPtr = pacman.get();
+		if (gameMode == dae::GameMode::TwoPlayer) {
+			pacman->AddComponent<dae::SpriteComponent>("MSPC_Pacman_Spritesheet.tga", 4, 3, 0.1f, 2.0f);
+			pacman->SetPosition(200, 304);
+			pacman->AddComponent<dae::HealthComponent>(3, HealthChanged, PlayerDied);
+			pacman->AddComponent<dae::PointsComponent>(PointsChanged);
+			pacman->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Friendly, true, true);
+			pacman->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Pacman, builder);
+			pacman->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builder);
+			scene.Add(pacman);
+		}
 
-	event.Subscribe(PlayerDied, [mspacmanPtr](const Event&) {
-		if (mspacmanPtr)
-		{
-			auto& highScoreManager = HighScoreManager::GetInstance();
-			auto points = mspacmanPtr->GetComponent<dae::PointsComponent>();
-			if (points->GetScore() >= highScoreManager.GetTopScore())
+		auto mspacman = std::make_unique<dae::GameObject>();
+		auto mspacmanPtr = mspacman.get();
+		mspacman->AddComponent<dae::SpriteComponent>("MSPC_Mspacman_Spritesheet.tga", 4, 3, 0.1f, 2.0f);
+		mspacman->SetPosition(208.f, 400.f);
+		mspacman->AddComponent<dae::HealthComponent>(3, HealthChanged, PlayerDied);
+		mspacman->AddComponent<dae::PointsComponent>(PointsChanged);
+		mspacman->AddComponent<dae::ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(8.f, 8.f), dae::CollisionLayer::Friendly, true, true);
+		mspacman->AddComponent<dae::MovementComponent>(100.f, dae::AnimationType::Pacman, builder);
+		mspacman->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builder);
+		scene.Add(mspacman);
+
+		// --- ADD GHOSTS --- //
+
+		clyde->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Clyde);
+		scene.Add(clyde);
+		inky->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Inky);
+		scene.Add(inky);
+		pinky->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Pinky);
+		scene.Add(pinky);
+		if (gameMode == dae::GameMode::Versus) blinky->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Blinky, true);
+		else blinky->AddComponent<dae::GhostAIComponent>(mspacmanPtr, dae::GhostType::Blinky);
+		scene.Add(blinky);
+
+		// --- EVENTS --- //
+
+		// Highscore
+		event.Subscribe(PlayerDied, [mspacmanPtr](const Event&) {
+			if (mspacmanPtr)
 			{
-				highScoreManager.SaveHighScore("XXX", points->GetScore());
+				auto& highScoreManager = HighScoreManager::GetInstance();
+				auto points = mspacmanPtr->GetComponent<dae::PointsComponent>();
+				if (points->GetScore() >= highScoreManager.GetTopScore())
+				{
+					highScoreManager.SaveHighScore("XXX", points->GetScore());
+				}
 			}
-		}
+			});
+
+		// Pacman eating pellets
+		event.Subscribe(OnTriggerEnter, [&soundSystem, mspacmanPtr, pacmanPtr, blinkyPtr, pinkyPtr, inkyPtr, clydePtr, gameMode, builderPtr = builder](const Event& e) {
+			auto* collisionArgs = static_cast<dae::CollisionEventArg*>(e.args[0]);
+			if (!collisionArgs || !collisionArgs->other || !collisionArgs->self) return;
+
+			bool isPelletCollectedByMsPacman =
+				(collisionArgs->self->GetLayer() == dae::CollisionLayer::Object &&
+					collisionArgs->other == mspacmanPtr->GetComponent<dae::ColliderComponent>()) ||
+				(collisionArgs->other->GetLayer() == dae::CollisionLayer::Object &&
+					collisionArgs->self == mspacmanPtr->GetComponent<dae::ColliderComponent>());
+
+			bool isPelletCollectedByPacman = false;
+			if (gameMode == dae::GameMode::TwoPlayer) {
+				isPelletCollectedByPacman =
+					(collisionArgs->self->GetLayer() == dae::CollisionLayer::Object &&
+						collisionArgs->other == pacmanPtr->GetComponent<dae::ColliderComponent>()) ||
+					(collisionArgs->other->GetLayer() == dae::CollisionLayer::Object &&
+						collisionArgs->self == pacmanPtr->GetComponent<dae::ColliderComponent>());
+			}
+
+			if (isPelletCollectedByMsPacman || isPelletCollectedByPacman)
+			{
+				dae::ColliderComponent* pelletCollider =
+					(collisionArgs->self->GetLayer() == dae::CollisionLayer::Object)
+					? collisionArgs->self : collisionArgs->other;
+
+				dae::GameObject* pellet = pelletCollider->GetOwner();
+				if (pellet->GetComponent<dae::PowerPelletComponent>())
+				{
+					blinkyPtr->GetComponent<dae::GhostAIComponent>()->SetFrightened(true);
+					pinkyPtr->GetComponent<dae::GhostAIComponent>()->SetFrightened(true);
+					inkyPtr->GetComponent<dae::GhostAIComponent>()->SetFrightened(true);
+					clydePtr->GetComponent<dae::GhostAIComponent>()->SetFrightened(true);
+				}
+				soundSystem.Play(2, 1.0f, false);
+
+				auto pointsComponent = mspacmanPtr->GetComponent<dae::PointsComponent>();
+				if (pointsComponent) pointsComponent->AddPoints(10);
+
+				builderPtr->RemovePellet(pellet);
+			}
 		});
 
 
-	event.Subscribe(OnTriggerEnter, [&soundSystem, mspacmanPtr, pacmanPtr](const Event& e) {
-		auto* collisionArgs = static_cast<dae::CollisionEventArg*>(e.args[0]);
-		if (!collisionArgs || !collisionArgs->other || !collisionArgs->self) return;
+		// Ghost attack / eaten event
+		event.Subscribe(OnTriggerEnter, [&soundSystem, mspacmanPtr, pacmanPtr, gameMode, builderPtr = builder](const Event& e) {
+			auto* collisionArgs = static_cast<dae::CollisionEventArg*>(e.args[0]);
+			if (!collisionArgs || !collisionArgs->other || !collisionArgs->self) return;
 
-		// Only if the "self" is the pellet (Object) and "other" is Friendly (Ms. Pac-Man)
-		bool isPelletCollectedByAPacman =
-			(collisionArgs->self->GetLayer() == dae::CollisionLayer::Object &&
-				collisionArgs->other == mspacmanPtr->GetComponent<dae::ColliderComponent>()) ||
-			(collisionArgs->other->GetLayer() == dae::CollisionLayer::Object &&
-				collisionArgs->self == mspacmanPtr->GetComponent<dae::ColliderComponent>()) ||
-			(collisionArgs->self->GetLayer() == dae::CollisionLayer::Object &&
-				collisionArgs->other == pacmanPtr->GetComponent<dae::ColliderComponent>()) ||
-			(collisionArgs->other->GetLayer() == dae::CollisionLayer::Object &&
-				collisionArgs->self == pacmanPtr->GetComponent<dae::ColliderComponent>());
+			bool isGhostCollision =
+				(collisionArgs->self == mspacmanPtr->GetComponent<dae::ColliderComponent>() && collisionArgs->other->GetLayer() == dae::CollisionLayer::Enemy) ||
+				(collisionArgs->other == mspacmanPtr->GetComponent<dae::ColliderComponent>() && collisionArgs->self->GetLayer() == dae::CollisionLayer::Enemy);
 
-		if (isPelletCollectedByAPacman)
-		{
-			dae::ColliderComponent* pelletCollider =
-				(collisionArgs->self->GetLayer() == dae::CollisionLayer::Object)
-				? collisionArgs->self : collisionArgs->other;
+			if (isGhostCollision)
+			{
+				auto ghostAI = collisionArgs->self->GetOwner()->GetComponent<dae::GhostAIComponent>();
+				auto ghostMovement = collisionArgs->self->GetOwner()->GetComponent<dae::MovementComponent>();
+				if (ghostAI->GetFrightened() && ghostMovement) // Eatable Ghost
+				{
+					ghostAI->QueueStateChange(std::make_unique<dae::GhostEatenState>());
+					ghostMovement->SetTargetDestination(builderPtr->GetCenterNode());
+				}
+				else
+				{
+					if (ghostAI->GetEaten()) return;
 
-			dae::GameObject* pellet = pelletCollider->GetOwner();
-			soundSystem.Play(2, 1.0f, false);
+					// Take damage
+					auto health = mspacmanPtr->GetComponent<dae::HealthComponent>();
+					if (health) health->TakeDamage(1);
 
-			auto pointsComponent = mspacmanPtr->GetComponent<dae::PointsComponent>();
-			if (pointsComponent) pointsComponent->AddPoints(10);
-
-			builder.RemovePellet(pellet);
-		}
+					mspacmanPtr->SetPosition(208.f, 400.f); // TEMPORARY
+					auto move = mspacmanPtr->GetComponent<dae::MovementComponent>();
+					move->SetTargetNode(nullptr);
+					move->FindAndSetStartNode(builderPtr);
+				}
+			}
 		});
 
-	// --- UI --- //
+		// Pacman eating all pellets -> Next Level
+		event.Subscribe(AllPelletsEaten, [&levelManager, &scene, mspacmanPtr, pacmanPtr, blinkyPtr, pinkyPtr, inkyPtr, clydePtr, gameMode, builderPtr = builder](const Event&) {
+			scene.Pause();
+			blinkyPtr->GetComponent<dae::MovementComponent>()->Reset();
+			pinkyPtr->GetComponent<dae::MovementComponent>()->Reset();
+			inkyPtr->GetComponent<dae::MovementComponent>()->Reset();
+			clydePtr->GetComponent<dae::MovementComponent>()->Reset();
+			mspacmanPtr->GetComponent<dae::MovementComponent>()->Reset();
 
-	auto livesDisplayMsPacMan = std::make_unique<dae::GameObject>();
-	livesDisplayMsPacMan->SetPosition(5.f, 538.f);
-	livesDisplayMsPacMan->AddComponent<dae::RenderComponent>();
-	livesDisplayMsPacMan->AddComponent<dae::LivesDisplayComponent>(mspacmanPtr, &scene);
-	scene.Add(livesDisplayMsPacMan);
+			mspacmanPtr->SetPosition(208.f, 400.f);
+			levelManager.NextLevel();
 
-	auto scoreDisplayMsPacMan = std::make_unique<dae::GameObject>();
-	scoreDisplayMsPacMan->SetPosition(20.f, 10.f);
-	scoreDisplayMsPacMan->AddComponent<dae::TextComponent>("", retroFont);
-	scoreDisplayMsPacMan->AddComponent<dae::PointsDisplayComponent>(mspacmanPtr);
-	scene.Add(scoreDisplayMsPacMan);
+			mspacmanPtr->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(levelManager.GetLevelBuilder());
+			if(gameMode == dae::GameMode::TwoPlayer) pacmanPtr->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builderPtr);
+			blinkyPtr->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builderPtr);
+			pinkyPtr->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builderPtr);
+			inkyPtr->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builderPtr);
+			clydePtr->GetComponent<dae::MovementComponent>()->FindAndSetStartNode(builderPtr);
+			scene.Resume();
+			std::cout << "Next Level" << std::endl;
+		});
 
-	// --- INPUTS --- //
+		// --- UI --- //
 
-	input.BindCommand(SDLK_w, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(pacmanPtr, glm::vec2(0.f, -1.f)));
-	input.BindCommand(SDLK_s, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(pacmanPtr, glm::vec2(0.f, 1.f)));
-	input.BindCommand(SDLK_a, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(pacmanPtr, glm::vec2(-1.f, 0.f)));
-	input.BindCommand(SDLK_d, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(pacmanPtr, glm::vec2(1.f, 0.f)));
+		auto livesDisplayMsPacMan = std::make_unique<dae::GameObject>();
+		livesDisplayMsPacMan->SetPosition(5.f, 538.f);
+		livesDisplayMsPacMan->AddComponent<dae::RenderComponent>();
+		livesDisplayMsPacMan->AddComponent<dae::LivesDisplayComponent>(mspacmanPtr, &scene);
+		scene.Add(livesDisplayMsPacMan);
 
-	input.BindCommand(SDLK_c, dae::KeyState::Pressed, std::make_unique<dae::TakeDamageCommand>(mspacmanPtr, 1));
-	input.BindCommand(SDLK_z, dae::KeyState::Pressed, std::make_unique<dae::AddPointsCommand>(mspacmanPtr, 10));
-	input.BindCommand(SDLK_x, dae::KeyState::Pressed, std::make_unique<dae::AddPointsCommand>(mspacmanPtr, 100));
+		auto scoreDisplayMsPacMan = std::make_unique<dae::GameObject>();
+		scoreDisplayMsPacMan->SetPosition(20.f, 10.f);
+		scoreDisplayMsPacMan->AddComponent<dae::TextComponent>("", retroFont);
+		scoreDisplayMsPacMan->AddComponent<dae::PointsDisplayComponent>(mspacmanPtr);
+		scene.Add(scoreDisplayMsPacMan);
 
-	input.BindCommand(SDLK_UP, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(0.f, -1.f)));
-	input.BindCommand(SDLK_DOWN, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(0.f, 1.f)));
-	input.BindCommand(SDLK_LEFT, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(-1.f, 0.f)));
-	input.BindCommand(SDLK_RIGHT, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(1.f, 0.f)));
+		//auto saveHighScore = std::make_unique<dae::GameObject>();
+		//auto saveHighScorePtr = saveHighScore.get();
+		//saveHighScore->SetPosition(100.f, 520.f);
+		//saveHighScore->AddComponent<dae::TextComponent>("", retroFont);
+		//saveHighScore->AddComponent<dae::NameInputComponent>(highScoreManager.GetTopScore());
+		//scene.Add(saveHighScore);
 
-	//input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(0.f, -1.f)));
-	//input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(0.f, 1.f)));
-	//input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(-1.f, 0.f)));
-	//input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(1.f, 0.f)));
+		//input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, dae::KeyState::Pressed, std::make_unique<dae::LetterUpCommand>(saveHighScorePtr));
+		//input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, dae::KeyState::Pressed, std::make_unique<dae::LetterDownCommand>(saveHighScorePtr));
+		//input.BindCommand(SDL_CONTROLLER_BUTTON_A, dae::KeyState::Pressed, std::make_unique<dae::ConfirmLetterCommand>(saveHighScorePtr));
 
-	//input.BindCommand(SDL_CONTROLLER_BUTTON_X, dae::KeyState::Pressed, std::make_unique<dae::TakeDamageCommand>(mspacmanPtr, 1));
-	//input.BindCommand(SDL_CONTROLLER_BUTTON_A, dae::KeyState::Pressed, std::make_unique<dae::AddPointsCommand>(mspacmanPtr, 10));
-	//input.BindCommand(SDL_CONTROLLER_BUTTON_B, dae::KeyState::Pressed, std::make_unique<dae::AddPointsCommand>(mspacmanPtr, 100));
+
+		// --- INPUTS --- //
+
+		if (gameMode == dae::GameMode::TwoPlayer) {
+			input.BindCommand(SDLK_w, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(pacmanPtr, glm::vec2(0.f, -1.f)));
+			input.BindCommand(SDLK_s, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(pacmanPtr, glm::vec2(0.f, 1.f)));
+			input.BindCommand(SDLK_a, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(pacmanPtr, glm::vec2(-1.f, 0.f)));
+			input.BindCommand(SDLK_d, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(pacmanPtr, glm::vec2(1.f, 0.f)));
+		}
+		else if (gameMode == dae::GameMode::Versus) {
+			input.BindCommand(SDLK_w, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(blinkyPtr, glm::vec2(0.f, -1.f)));
+			input.BindCommand(SDLK_s, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(blinkyPtr, glm::vec2(0.f, 1.f)));
+			input.BindCommand(SDLK_a, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(blinkyPtr, glm::vec2(-1.f, 0.f)));
+			input.BindCommand(SDLK_d, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(blinkyPtr, glm::vec2(1.f, 0.f)));
+		}
+
+		input.BindCommand(SDLK_UP, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(0.f, -1.f)));
+		input.BindCommand(SDLK_DOWN, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(0.f, 1.f)));
+		input.BindCommand(SDLK_LEFT, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(-1.f, 0.f)));
+		input.BindCommand(SDLK_RIGHT, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(1.f, 0.f)));
+
+		input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(0.f, -1.f)));
+		input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(0.f, 1.f)));
+		input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(-1.f, 0.f)));
+		input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, dae::KeyState::Down, std::make_unique<dae::MoveCommand>(mspacmanPtr, glm::vec2(1.f, 0.f)));
+		std::cout << "GameScene loaded" << std::endl;
+	}
 }

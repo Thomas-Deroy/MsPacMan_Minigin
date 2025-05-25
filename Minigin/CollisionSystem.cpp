@@ -91,29 +91,8 @@ namespace dae
         stayEvent.nbArgs = 1;
         EventSystem::GetInstance().Notify(stayEvent);
 
-        // Layer-specific events
-        SendLayerSpecificEvent(b, a);
     }
 
-    void CollisionSystem::SendLayerSpecificEvent(ColliderComponent* self, ColliderComponent* other)
-    {
-        EventId eventId = OnTriggerDefault;
-
-        switch (other->GetLayer())
-        {
-        case CollisionLayer::Friendly: eventId = OnTriggerFriendly; break;
-        case CollisionLayer::Enemy: eventId = OnTriggerEnemy; break;
-        case CollisionLayer::Wall: eventId = OnTriggerWall; break;
-        case CollisionLayer::Object: eventId = OnTriggerObject; break;
-        default: break;
-        }
-
-        CollisionEventArg arg{ self, other };
-        Event event(eventId);
-        event.args[0] = &arg;
-        event.nbArgs = 1;
-        EventSystem::GetInstance().Notify(event);
-    }
 
     CollisionSystem::ColliderPair CollisionSystem::MakePair(ColliderComponent* a, ColliderComponent* b)
     {
@@ -135,30 +114,4 @@ namespace dae
         auto it = m_LayerMasks.find(layer);
         return (it != m_LayerMasks.end()) ? it->second : 0xFFFFFFFF;
     }
-
-    bool CollisionSystem::WouldCollide(const ColliderComponent* self, const glm::vec2& newPos, CollisionLayer collideWithLayer) const
-    {
-        if (!self)
-            return false;
-
-        const SDL_Rect selfBounds = self->GetBoundsAtPosition(newPos);
-
-        for (auto* other : m_Colliders)
-        {
-            if (!other || other == self)
-                continue;
-
-
-            if (other->GetLayer() != collideWithLayer)
-                continue;
-
-            const SDL_Rect otherBounds = other->GetBoundsAtPosition(other->GetWorldPosition());
-
-            if (ColliderComponent::RectsOverlap(selfBounds, otherBounds))
-                return true;
-        }
-
-        return false;
-    }
-
 }

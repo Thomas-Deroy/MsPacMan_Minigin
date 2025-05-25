@@ -21,6 +21,9 @@ namespace dae
 		void Update(float);
 		void Render() const;
 
+		void Pause(); 
+		void Resume();
+
 		const std::string& GetName() const;
 
 		~Scene();

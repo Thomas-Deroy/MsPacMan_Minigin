@@ -83,6 +83,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Visual Leak Detector\include;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <UseDynamicDebugging>false</UseDynamicDebugging>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,6 +122,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Visual Leak Detector\include;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <UseDynamicDebugging>false</UseDynamicDebugging>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,11 +157,17 @@
     <ClCompile Include="..\Minigin\PointsDisplayComponent.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GhostAIComponent.cpp" />
+    <ClCompile Include="GhostChaseState.cpp" />
+    <ClCompile Include="GhostEatenState.cpp" />
+    <ClCompile Include="GhostFrightenedState.cpp" />
+    <ClCompile Include="GhostScatterState.cpp" />
     <ClCompile Include="HighScoreManager.cpp" />
     <ClCompile Include="LevelBuilder.cpp" />
+    <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MenuScene.cpp" />
     <ClCompile Include="MovementComponent.cpp" />
+    <ClCompile Include="NameInputComponent.cpp" />
     <ClCompile Include="TeleportComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -172,11 +180,21 @@
     <ClInclude Include="..\Minigin\PointsDisplayComponent.h" />
     <ClInclude Include="..\Minigin\TakeDamageCommand.h" />
     <ClInclude Include="GameEvents.h" />
+    <ClInclude Include="GameModeCommand.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GhostAIComponent.h" />
+    <ClInclude Include="GhostChaseState.h" />
+    <ClInclude Include="GhostEatenState.h" />
+    <ClInclude Include="GhostFrightenedState.h" />
+    <ClInclude Include="GhostScatterState.h" />
     <ClInclude Include="HighScoreManager.h" />
+    <ClInclude Include="IGhostState.h" />
+    <ClInclude Include="LetterUpCommand.h" />
     <ClInclude Include="LevelBuilder.h" />
+    <ClInclude Include="LevelManager.h" />
     <ClInclude Include="MenuScene.h" />
+    <ClInclude Include="NameInputComponent.h" />
+    <ClInclude Include="PowerPelletComponent.h" />
     <ClInclude Include="UIMoveCommand.h" />
     <ClInclude Include="SceneSwapCommand.h" />
     <ClInclude Include="TeleportComponent.h" />

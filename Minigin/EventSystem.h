@@ -65,3 +65,8 @@ public:
 private:
     std::unordered_map<EventId, std::vector<EventCallback>> listeners;
 };
+
+// Build in Collision events
+constexpr EventId OnTriggerEnter = make_sdbm_hash("OnTriggerEnter");
+constexpr EventId OnTriggerStay = make_sdbm_hash("OnTriggerStay");
+constexpr EventId OnTriggerExit = make_sdbm_hash("OnTriggerExit");

@@ -25,6 +25,9 @@ namespace dae
 
     void SpriteComponent::Update(float elapsedSec)
     {
+        if (!m_IsLooping)
+            return;
+
         m_AccumulatedTime += elapsedSec;
         if (m_AccumulatedTime >= m_FrameDelay)
         {
@@ -65,4 +68,35 @@ namespace dae
     {
         m_Rotation = angle;
     }
+
+    void dae::SpriteComponent::SetSprite(const std::string& texturePath, int rows, int columns, float frameDelay, float scaler)
+    {
+        if (!m_RenderComponent)
+        {
+            m_RenderComponent = GetOwner()->AddComponent<RenderComponent>(texturePath, scaler);
+        }
+        else
+        {
+            m_RenderComponent->SetTexture(texturePath);
+            m_RenderComponent->SetScale(scaler);
+        }
+
+        m_Rows = rows;
+        m_Columns = columns;
+        m_FrameDelay = frameDelay;
+        m_Scaler = scaler;
+
+        auto texture = ResourceManager::GetInstance().LoadTexture(texturePath);
+        if (texture)
+        {
+            m_FrameWidth = texture->GetWidth() / m_Columns;
+            m_FrameHeight = texture->GetHeight() / m_Rows;
+        }
+
+        m_CurrentRow = 0;
+        m_CurrentColumn = 0;
+        m_AccumulatedTime = 0.f;
+    }
+
+
 }

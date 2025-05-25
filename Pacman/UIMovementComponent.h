@@ -4,13 +4,6 @@
 
 namespace dae
 {
-    enum class MenuOption
-    {
-        OnePlayer = 0,
-        TwoPlayer = 1,
-        Versus = 2
-    };
-
     class UIMovementComponent : public Component
     {
     public:
@@ -38,11 +31,6 @@ namespace dae
 
         int GetCurrentIndex() const { return m_CurrentIndex; }
         int GetMaxIndex() const { return m_MaxIndex; }
-
-        MenuOption GetCurrentOption() const
-        {
-            return static_cast<MenuOption>(m_CurrentIndex);
-        }
 
     private:
         glm::vec2 m_StartPosition{};

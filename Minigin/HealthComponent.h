@@ -26,7 +26,6 @@ namespace dae
 
         void Heal(int)
         {
-            //m_Health = std::min(m_Health + amount, m_MaxHealth);
             EventSystem::GetInstance().Notify(Event{ m_HealthChangedEvent });
         }
 

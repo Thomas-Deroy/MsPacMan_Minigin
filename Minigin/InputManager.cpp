@@ -18,12 +18,18 @@ namespace dae
 
     void InputManager::BindCommand(SDL_Keycode key, KeyState state, std::unique_ptr<Command> command)
     {
-        m_KeyboardBindings[key].emplace_back(state, std::move(command));
+		if (m_ShouldClearBinds)
+			m_PendingKeyboardBindings[key].emplace_back(state, std::move(command));
+        else 
+            m_KeyboardBindings[key].emplace_back(state, std::move(command));
     }
 
     void InputManager::BindCommand(SDL_GameControllerButton button, KeyState state, std::unique_ptr<Command> command)
     {
-        m_ControllerBindings[button].emplace_back(state, std::move(command));
+		if (m_ShouldClearBinds)
+			m_PendingControllerBindings[button].emplace_back(state, std::move(command));
+		else
+            m_ControllerBindings[button].emplace_back(state, std::move(command));
     }
 
     void InputManager::RemoveBind(SDL_Keycode key, KeyState state)
@@ -55,6 +61,40 @@ namespace dae
             }
         }
     }
+
+    void dae::InputManager::ClearAllBinds()
+    {
+        m_ControllerBindings.clear();
+        m_KeyboardBindings.clear();
+    }
+
+    void InputManager::RequestClearAllBinds()
+    {
+        m_ShouldClearBinds = true;
+    }
+
+    void InputManager::ApplyPendingBinds()
+    {
+        for (auto& [key, vec] : m_PendingKeyboardBindings)
+        {
+            for (auto& [state, command] : vec)
+            {
+                m_KeyboardBindings[key].emplace_back(state, std::move(command));
+            }
+        }
+
+        for (auto& [button, vec] : m_PendingControllerBindings)
+        {
+            for (auto& [state, command] : vec)
+            {
+                m_ControllerBindings[button].emplace_back(state, std::move(command));
+            }
+        }
+
+        m_PendingKeyboardBindings.clear();
+        m_PendingControllerBindings.clear();
+    }
+
 
     bool InputManager::ProcessInput()
     {
@@ -123,6 +163,12 @@ namespace dae
             }
         }
 
+        if (m_ShouldClearBinds)
+        {
+            ClearAllBinds();
+            ApplyPendingBinds();
+            m_ShouldClearBinds = false;
+        }
         return true;
     }
 }

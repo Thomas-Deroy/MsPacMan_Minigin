@@ -176,8 +176,5 @@
     <ClInclude Include="CollisionSystem.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="EngineEvents.h">
-      <Filter>Header Files\Engine</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

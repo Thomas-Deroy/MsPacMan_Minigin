@@ -7,7 +7,6 @@
 #include "GameObject.h"
 #include "Singleton.h"
 #include "EventSystem.h"
-#include "EngineEvents.h"
 
 namespace dae
 {
@@ -40,7 +39,6 @@ namespace dae
 
 		void SetLayerMask(CollisionLayer layer, unsigned int mask);
 		unsigned int GetLayerMask(CollisionLayer layer) const;
-		bool WouldCollide(const ColliderComponent* self, const glm::vec2& newPos, CollisionLayer collideWithLayer) const;
 
 	private:
 		std::vector<ColliderComponent*> m_Colliders;
@@ -56,7 +54,6 @@ namespace dae
 		std::unordered_map<CollisionLayer, unsigned int> m_LayerMasks;
 
 		void SendCollisionEvents(ColliderComponent* a, ColliderComponent* b, bool wasColliding);
-		void SendLayerSpecificEvent(ColliderComponent* self, ColliderComponent* other);
 		void CleanupColliders();
 		ColliderPair MakePair(ColliderComponent* a, ColliderComponent* b);
 

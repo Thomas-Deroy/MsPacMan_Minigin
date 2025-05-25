@@ -25,6 +25,11 @@ namespace dae
         void SetRotation(float angle);
         float GetRotation() const { return m_Rotation; }
 
+        void SetLooping(bool looping) { m_IsLooping = looping; }
+        bool IsLooping() const { return m_IsLooping; }
+
+        void SetSprite(const std::string& texturePath, int rows, int columns, float frameDelay, float scaler);
+
     private:
         RenderComponent* m_RenderComponent;
 
@@ -37,5 +42,6 @@ namespace dae
         int m_CurrentColumn = 0;
 
         float m_Rotation = 0.0f;
+        bool m_IsLooping = true;
     };
 }

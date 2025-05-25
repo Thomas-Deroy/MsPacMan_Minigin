@@ -26,6 +26,8 @@ namespace dae
 
     void GameObject::Update(float deltaTime)
     {
+        if (!m_IsActive) return;
+
         for (const auto& component : m_Components)
         {
             component->Update(deltaTime);
@@ -79,6 +81,17 @@ namespace dae
     {
         return m_transform;
     }
+
+    void GameObject::SetRenderLayer(int layer) 
+    { 
+        m_RenderLayer = layer; 
+    }
+
+    int GameObject::GetRenderLayer() const 
+    { 
+        return m_RenderLayer; 
+    }
+
 
     void GameObject::SetParent(GameObject* parent, bool keepWorldPosition)
     {

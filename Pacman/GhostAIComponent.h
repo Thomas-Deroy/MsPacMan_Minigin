@@ -1,53 +1,64 @@
 #pragma once
 #include "Component.h"
 #include "GameObject.h"
+#include "SpriteComponent.h"
+#include <memory>
+#include "GhostFrightenedState.h"
+#include "GhostEatenState.h"
 
 namespace dae
 {
     class MovementComponent;
     class GameObject;
     struct Node;
+    class IGhostState;
 
     enum class GhostType { Blinky, Pinky, Inky, Clyde };
 
     class GhostAIComponent : public Component
     {
     public:
-        enum class GhostState { Chase, Scatter, Frightened, Eaten };
-
-        GhostAIComponent(GameObject* owner, GameObject* pacman, GhostType type);
+        GhostAIComponent(GameObject* owner, GameObject* player, GhostType type, bool isPlayer = false);
 
         void Update(float deltaTime) override;
-        void SetState(GhostState newState);
+        void QueueStateChange(std::unique_ptr<IGhostState> newState);
+        void ChangeState(std::unique_ptr<IGhostState> newState);
         void SetFrightened(bool frightened);
+        bool GetFrightened() { return typeid(*m_CurrentState) == typeid(GhostFrightenedState); }
+        bool GetEaten() { return typeid(*m_CurrentState) == typeid(GhostEatenState); }
 
         GhostType GetType() const { return m_Type; }
+        MovementComponent* GetMovement() const { return m_MovementComponent; }
+		SpriteComponent* GetSprite() const { return m_Owner->GetComponent<SpriteComponent>(); }
 
-    private:
         glm::vec2 ChooseDirectionToward(const glm::vec2& targetPos);
         glm::vec2 GetTargetPosition() const;
-
         glm::vec2 CalculateChaseTarget() const;
         glm::vec2 CalculateScatterTarget() const;
         glm::vec2 GetScatterCorner() const;
 
-        glm::vec2 BlinkyChase() const;    // Red - direct chase
-        glm::vec2 PinkyChase() const;     // Pink - ambush (4 tiles ahead)
-        glm::vec2 InkyChase() const;      // Cyan - unpredictable
-        glm::vec2 ClydeChase() const;     // Orange - runs away when close
+        glm::vec2 BlinkyChase() const;
+        glm::vec2 PinkyChase() const;
+        glm::vec2 InkyChase() const;
+        glm::vec2 ClydeChase() const;
 
+        float GetStateTimer() const { return m_StateTimer; }
+        void ResetStateTimer() { m_StateTimer = 0.f; }
+        void SetDirectionCooldown(float time) { m_DirectionChangeCooldown = time; }
+        float GetDirectionCooldown() const { return m_DirectionChangeCooldown; }
+        glm::vec2& GetLastDirection() { return m_LastDirection; }
+
+    private:
         MovementComponent* m_MovementComponent;
-        GameObject* m_Pacman;
-
-        GhostState m_CurrentState = GhostState::Scatter;
+        GameObject* m_Player;
         GhostType m_Type;
 
-        float m_StateTimer = 0.f;
-        const float m_ScatterDuration = 7.f;
-        const float m_ChaseDuration = 20.f;
-        const float m_FrightenedDuration = 6.f;
+        std::unique_ptr<IGhostState> m_CurrentState;
+        std::unique_ptr<IGhostState> m_QueuedState;
 
+        float m_StateTimer = 0.f;
         glm::vec2 m_LastDirection = { 0, 0 };
         float m_DirectionChangeCooldown = 0.f;
+		bool m_IsPlayer = false;
     };
 }

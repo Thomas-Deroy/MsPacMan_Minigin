@@ -62,6 +62,14 @@ namespace dae
         void MarkForDestroy() { m_MarkedForDestroy = true; }
         bool IsMarkedForDestroy() const { return m_MarkedForDestroy; }
 
+        // ENABLE / DISABLE IT 
+        void SetActive(bool active) { m_IsActive = active; }
+        bool IsActive() const { return m_IsActive; }
+
+        // RENDERING
+        int GetRenderLayer() const;
+        void SetRenderLayer(int layer);
+
         // COMPONENTS
         template <typename T, typename... Args>
         T* AddComponent(Args&&... args)
@@ -122,5 +130,8 @@ namespace dae
 
         float m_VelocityX = 0.0f;
         float m_VelocityY = 0.0f;
+
+        bool m_IsActive{ true };
+        int m_RenderLayer{ 1 };
     };
 }

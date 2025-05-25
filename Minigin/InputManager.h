@@ -29,14 +29,24 @@ namespace dae
         void RemoveBind(SDL_Keycode key, KeyState state);
         void RemoveBind(SDL_GameControllerButton key, KeyState state);
 
+        void RequestClearAllBinds();
+
         bool ProcessInput();
 
     private:
+        void ClearAllBinds();
+        void ApplyPendingBinds();
+
         std::unordered_map<SDL_Keycode, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_KeyboardBindings;
         std::unordered_map<SDL_GameControllerButton, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_ControllerBindings;
+
+        std::unordered_map<SDL_Keycode, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_PendingKeyboardBindings;
+        std::unordered_map<SDL_GameControllerButton, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_PendingControllerBindings;
+
         std::unordered_map<SDL_Keycode, bool> previousKeyStates;
         std::unordered_map<SDL_GameControllerButton, bool> previousControllerStates;
 
         std::vector<std::unique_ptr<Gamepad>> m_Gamepads;
+        bool m_ShouldClearBinds{ false };
     };
 }

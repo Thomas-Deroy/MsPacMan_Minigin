@@ -15,6 +15,7 @@
 #include "GameScene.h"
 #include "MenuScene.h"
 
+#include "LevelManager.h"
 #include <iostream>
 
 const int WIDTH = 448;
@@ -28,10 +29,12 @@ void load()
     auto& gameScene = sceneManager.CreateScene("Game");
     auto& menuScene = sceneManager.CreateScene("Menu");
 
-    sceneManager.SetActiveScene("Game");
+    auto& levelManager = dae::LevelManager::GetInstance();
 
-    LoadGameScene(gameScene, sceneManager, dae::GameMode::OnePlayer);
-    LoadMenuScene(menuScene);
+    sceneManager.SetActiveScene("Menu");
+
+    LoadGameScene(gameScene, sceneManager, levelManager, dae::GameMode::OnePlayer);
+    LoadMenuScene(menuScene, sceneManager, levelManager);
 }
 
 int main(int, char* [])

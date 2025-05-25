@@ -32,7 +32,6 @@ void Scene::Remove(GameObject* obj) {
         m_objects.end());
 }
 
-
 void Scene::RemoveAll()
 {
 	m_objects.clear();
@@ -43,6 +42,22 @@ bool Scene::Contains(GameObject* obj) const {
         if (gameObject.get() == obj) return true;
     }
     return false;
+}
+
+void dae::Scene::Pause()
+{
+    for (auto& object : m_objects)
+    {
+        object->SetActive(false);
+    }
+}
+
+void dae::Scene::Resume()
+{
+    for (auto& object : m_objects)
+    {
+        object->SetActive(true);
+    }
 }
 
 void Scene::Update(float deltaTime)
@@ -58,7 +73,10 @@ void Scene::Update(float deltaTime)
             toRemove.push_back(object.get());
             continue;
         }
-        object->Update(deltaTime);
+        if (object->IsActive())  
+        {
+            object->Update(deltaTime);
+        }
     }
 
     for (auto* object : toRemove)
@@ -70,10 +88,22 @@ void Scene::Update(float deltaTime)
 
 void Scene::Render() const
 {
-	for (const auto& object : m_objects)
-	{
-		object->Render();
-	}
+    std::vector<const GameObject*> sortedObjects;
+    for (const auto& object : m_objects)
+    {
+        sortedObjects.push_back(object.get());
+    }
+
+    std::sort(sortedObjects.begin(), sortedObjects.end(),
+        [](const GameObject* a, const GameObject* b)
+        {
+            return a->GetRenderLayer() < b->GetRenderLayer();
+        });
+
+    for (const auto* object : sortedObjects)
+    {
+        object->Render();
+    }
 }
 
 

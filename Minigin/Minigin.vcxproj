@@ -45,7 +45,6 @@
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="EngineEvents.h" />
     <ClInclude Include="EventSystem.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FPSComponent.h" />

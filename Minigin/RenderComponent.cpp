@@ -18,7 +18,7 @@ dae::RenderComponent::RenderComponent(GameObject* owner, const std::string& file
 
 void dae::RenderComponent::Render() const
 {
-    if (!m_texture || !GetOwner())
+    if (!m_texture || !GetOwner() || !m_isVisible)
         return;
 
     // Sprite handles its own rendering
@@ -29,15 +29,29 @@ void dae::RenderComponent::Render() const
     float width = static_cast<float>(m_texture->GetWidth()) * m_scale;
     float height = static_cast<float>(m_texture->GetHeight()) * m_scale;
 
-    Renderer::GetInstance().RenderTexture(*m_texture, worldPos.x, worldPos.y, width, height);
+    Renderer::GetInstance().RenderTexture(*m_texture, worldPos.x, worldPos.y, width, height, m_color);
 }
 
 void dae::RenderComponent::SetTexture(const std::string& filename)
 {
-    m_texture = ResourceManager::GetInstance().LoadTexture(filename);
+    auto newTexture = ResourceManager::GetInstance().LoadTexture(filename);
+    if (m_texture != newTexture) // different pointer
+    {
+        m_texture = newTexture;
+    }
 }
 
 void dae::RenderComponent::SetScale(float scale)
 {
     m_scale = scale;
+}
+
+void dae::RenderComponent::SetColor(float r, float g, float b, float a)
+{
+    m_color = SDL_Color{
+        static_cast<Uint8>(r * 255.0f),
+        static_cast<Uint8>(g * 255.0f),
+        static_cast<Uint8>(b * 255.0f),
+        static_cast<Uint8>(a * 255.0f)
+    };
 }
