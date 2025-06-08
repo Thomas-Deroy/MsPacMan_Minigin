@@ -34,6 +34,7 @@
 #include "HealthComponent.h"
 #include "PointsDisplayComponent.h"
 #include "PointsComponent.h"
+#include "AnimationRotationComponent.h"
 
 #include "GameEvents.h"
 #include "LevelBuilder.h"
@@ -44,12 +45,14 @@
 #include "GhostAIComponent.h"
 #include "PowerPelletComponent.h"
 #include "GhostEatenState.h"
+#include "GhostChaseState.h"
 #include "NameInputComponent.h"
 
 #include "MoveCommand.h"
 #include "TakeDamageCommand.h"
 #include "AddPointsCommand.h"
 #include "LetterUpCommand.h"
+#include "CheatCommand.h"
 
 #include <iostream>
 

@@ -64,7 +64,7 @@ namespace dae
                     newNode->isMerged = true;
 
                     if (line[x] == 'M') 
-                        newNode->preferNotDown = true;
+                        newNode->preferNot = true;
 
                     row.emplace_back(newNode);
                     // Skip because merged
@@ -105,8 +105,8 @@ namespace dae
             m_Nodes.emplace_back(std::move(row));
             ++y;
         }
-
-
+        
+        SpawnGhostHouse();
         ConnectNodes();
         m_CenterNode = FindClosestNode(glm::vec2(200.f, 250.f));
     }
@@ -310,9 +310,22 @@ namespace dae
 
         const auto pos = GridToWorldPosition(x, y);
         powerPellet->SetPosition(pos.x, pos.y, pos.z);
+        powerPellet->SetRenderLayer(0);
 
         m_Scene->Add(powerPellet);
     }
+
+    void LevelBuilder::SpawnGhostHouse()
+    {
+        const float COLLIDER_SIZEX = 80.f;
+        const float COLLIDER_SIZEY = 30.f;
+
+        auto ghostHouse = std::make_unique<GameObject>();
+		m_GhostHousePtr = ghostHouse.get();
+        ghostHouse->AddComponent<ColliderComponent>(glm::vec2(COLLIDER_SIZEX, COLLIDER_SIZEY), glm::vec2(0.f, 0.f), CollisionLayer::Object, false, true);
+        ghostHouse->SetPosition(224.f - COLLIDER_SIZEX/2, 288.f - COLLIDER_SIZEY);
+        m_Scene->Add(ghostHouse);
+	}
 
     void LevelBuilder::SetPelletColor(float r, float g, float b, float alpha)
     {
@@ -331,13 +344,15 @@ namespace dae
             m_Pellets.end()
         );
 
-        auto* collider = pellet->GetComponent<ColliderComponent>();
-        if (collider)
+        if (auto* collider = pellet->GetComponent<ColliderComponent>())
+        {
             CollisionSystem::GetInstance().UnregisterCollider(collider);
+        }
 
-        if (m_Scene) {
+        if (m_Scene)
+        {
             pellet->SetParent(nullptr, false);
-            m_Scene->Remove(pellet);
+            pellet->MarkForDestroy(); 
         }
 
         if (m_Pellets.empty())

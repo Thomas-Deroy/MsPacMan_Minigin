@@ -48,10 +48,7 @@ namespace dae
                     glm::vec2 normDir = glm::normalize(dirToNeighbor);
                     glm::vec2 currentNorm = glm::normalize(m_CurrentDirection);
 
-                    bool isMovingDown = normDir == glm::vec2{ 0, 1 };
-                    bool prefersThisMove = !m_CurrentNode->preferNotDown || m_IgnoreNodePreferences;
-
-                    if (normDir == currentNorm && (!isMovingDown || prefersThisMove))
+                    if (normDir == currentNorm)
                     {
                         m_TargetNode = neighbor;
                         break;
@@ -65,7 +62,12 @@ namespace dae
         {
             glm::vec2 currentPos = m_Owner->GetTransform().GetWorldPosition();
             glm::vec2 targetPos = m_TargetNode->position;
-            glm::vec2 direction = glm::normalize(targetPos - currentPos);
+
+            if (isnan(currentPos.x) || isnan(currentPos.y)) {
+                currentPos = m_CurrentNode ? m_CurrentNode->position : glm::vec2(0, 0);
+            }
+
+            glm::vec2 direction =  SafeNormalize(targetPos - currentPos);
 
             glm::vec2 move = direction * m_Speed * deltaTime;
             if (glm::length(targetPos - (currentPos + move)) < glm::length(move))
@@ -121,8 +123,14 @@ namespace dae
         for (auto neighbor : m_CurrentNode->neighbors)
         {
             glm::vec2 dirToNeighbor = neighbor->position - m_CurrentNode->position;
-            if (glm::normalize(dirToNeighbor) == glm::normalize(dir))
-                return true;
+            if (glm::normalize(dirToNeighbor) == glm::normalize(dir)) {
+                if (!neighbor->preferNot)
+                    return true;
+                else if (m_IgnoreNodePreferences) {
+                    return true; 
+				}
+            }
+
         }
         return false;
     }
@@ -181,9 +189,8 @@ namespace dae
             m_CurrentNode = startNode;
 
             glm::vec2 nodeCenter = startNode->position;
-            glm::vec2 colliderHalfSize = collider->GetSize() / 2.0f;
 
-            m_Owner->GetTransform().SetWorldPosition(glm::vec3(nodeCenter - colliderHalfSize, 0.0f));
+            m_Owner->GetTransform().SetWorldPosition(glm::vec3(nodeCenter, 0.0f));
         }
     }
 
@@ -262,6 +269,11 @@ namespace dae
 
 		}
 
+    }
+
+    glm::vec2 dae::MovementComponent::SafeNormalize(const glm::vec2& vec) const {
+        float len = glm::length(vec);
+        return len > 0 ? vec / len : glm::vec2(1, 0);
     }
 
     void dae::MovementComponent::Reset()

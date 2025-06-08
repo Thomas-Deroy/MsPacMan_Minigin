@@ -12,7 +12,7 @@ namespace dae
         bool isMerged = false;
 		bool isTunnel = false;
 
-        bool preferNotDown = false;
+        bool preferNot = false;
     };
 
     struct TunnelPair
@@ -45,6 +45,8 @@ namespace dae
         Node* FindClosestNode(const glm::vec2& position);
         Node* GetCenterNode() const { return m_CenterNode; }
 
+        GameObject* GetGhostHouse() const { return m_GhostHousePtr; };
+
         struct TunnelPair
         {
             Node* left = nullptr;
@@ -56,6 +58,10 @@ namespace dae
     private:
         void SpawnPellet(int x, int y);
         void SpawnPowerPellet(int x, int y);
+		void SpawnGhostHouse();
+
+		GameObject* m_GhostHousePtr;
+
         Node* CreateNode(float x, float y);
         void ConnectNodes();
         bool IsWall(int x, int y);

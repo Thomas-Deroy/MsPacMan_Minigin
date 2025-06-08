@@ -83,7 +83,6 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Visual Leak Detector\include;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <UseDynamicDebugging>false</UseDynamicDebugging>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +121,6 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Visual Leak Detector\include;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <UseDynamicDebugging>false</UseDynamicDebugging>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,10 +153,13 @@
   <ItemGroup>
     <ClCompile Include="..\Minigin\LivesDisplayComponent.cpp" />
     <ClCompile Include="..\Minigin\PointsDisplayComponent.cpp" />
+    <ClCompile Include="AnimationRotationComponent.cpp" />
+    <ClCompile Include="FruitComponent.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GhostAIComponent.cpp" />
     <ClCompile Include="GhostChaseState.cpp" />
     <ClCompile Include="GhostEatenState.cpp" />
+    <ClCompile Include="GhostExitHouseState.cpp" />
     <ClCompile Include="GhostFrightenedState.cpp" />
     <ClCompile Include="GhostScatterState.cpp" />
     <ClCompile Include="HighScoreManager.cpp" />
@@ -179,12 +180,16 @@
     <ClInclude Include="..\Minigin\PointsComponent.h" />
     <ClInclude Include="..\Minigin\PointsDisplayComponent.h" />
     <ClInclude Include="..\Minigin\TakeDamageCommand.h" />
+    <ClInclude Include="AnimationRotationComponent.h" />
+    <ClInclude Include="CheatCommand.h" />
+    <ClInclude Include="FruitComponent.h" />
     <ClInclude Include="GameEvents.h" />
     <ClInclude Include="GameModeCommand.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GhostAIComponent.h" />
     <ClInclude Include="GhostChaseState.h" />
     <ClInclude Include="GhostEatenState.h" />
+    <ClInclude Include="GhostExitHouseState.h" />
     <ClInclude Include="GhostFrightenedState.h" />
     <ClInclude Include="GhostScatterState.h" />
     <ClInclude Include="HighScoreManager.h" />

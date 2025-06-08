@@ -9,6 +9,13 @@ namespace dae
 	class SceneManager; 
 	class GameObject;
 
+	struct TimerTask
+	{
+		float Remaining;
+		EventId EventToFire;
+	};
+
+
 	class Scene final
 	{
 	public:
@@ -23,6 +30,9 @@ namespace dae
 
 		void Pause(); 
 		void Resume();
+		void ResumeObject(GameObject* object);
+
+		void Timer(float durationSeconds, EventId eventId);
 
 		const std::string& GetName() const;
 
@@ -36,6 +46,8 @@ namespace dae
 	private:
 		std::string m_name;
 		std::vector<std::unique_ptr<GameObject>> m_objects;
+		std::vector<TimerTask> m_PendingTimers;
+		std::vector<TimerTask> m_TimerTasks;
 
 		static unsigned int m_idCounter;
 	};

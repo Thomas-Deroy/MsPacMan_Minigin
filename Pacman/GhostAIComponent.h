@@ -5,6 +5,7 @@
 #include <memory>
 #include "GhostFrightenedState.h"
 #include "GhostEatenState.h"
+#include "GhostExitHouseState.h"
 
 namespace dae
 {
@@ -26,6 +27,7 @@ namespace dae
         void SetFrightened(bool frightened);
         bool GetFrightened() { return typeid(*m_CurrentState) == typeid(GhostFrightenedState); }
         bool GetEaten() { return typeid(*m_CurrentState) == typeid(GhostEatenState); }
+        bool GetExitState() { return typeid(*m_CurrentState) == typeid(GhostExitHouseState); }
 
         GhostType GetType() const { return m_Type; }
         MovementComponent* GetMovement() const { return m_MovementComponent; }
@@ -48,6 +50,8 @@ namespace dae
         float GetDirectionCooldown() const { return m_DirectionChangeCooldown; }
         glm::vec2& GetLastDirection() { return m_LastDirection; }
 
+        void SetStartDelay(float delay);
+
     private:
         MovementComponent* m_MovementComponent;
         GameObject* m_Player;
@@ -60,5 +64,10 @@ namespace dae
         glm::vec2 m_LastDirection = { 0, 0 };
         float m_DirectionChangeCooldown = 0.f;
 		bool m_IsPlayer = false;
+
+        bool m_ReadyToExit{ false };
+        float m_ExitDelayTimer{ 0.f };
+        float m_StartDelay{ 0.f };
+		bool m_GhostExited{ true };
     };
 }

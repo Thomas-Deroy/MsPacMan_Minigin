@@ -5,6 +5,7 @@
 #include "GhostScatterState.h"
 #include "GhostFrightenedState.h"
 #include "GhostEatenState.h"
+
 #include <algorithm>
 #include <random>
 
@@ -21,6 +22,18 @@ namespace dae
     void GhostAIComponent::Update(float deltaTime)
     {
         if (!m_MovementComponent || !m_Player || !m_CurrentState) return;
+
+        if (!m_ReadyToExit)
+        {
+            m_ExitDelayTimer += deltaTime;
+            if (m_ExitDelayTimer >= m_StartDelay)
+            {
+                QueueStateChange(std::make_unique<GhostExitHouseState>());
+                m_ReadyToExit = true;
+            }
+            return;
+        }
+
 
         m_StateTimer += deltaTime;
         m_DirectionChangeCooldown -= deltaTime;
@@ -158,12 +171,18 @@ namespace dae
 
     void GhostAIComponent::SetFrightened(bool frightened)
     {
+        if (GetEaten() || GetExitState())
+            return;
+
         if (frightened) {
             QueueStateChange(std::make_unique<GhostFrightenedState>());
-        }
-        else {
-            QueueStateChange(std::make_unique<GhostChaseState>());
-        }
-            
+        }            
     }
+
+    void GhostAIComponent::SetStartDelay(float delay)
+    {
+        m_GhostExited = false;
+        m_StartDelay = delay;
+    }
+
 }

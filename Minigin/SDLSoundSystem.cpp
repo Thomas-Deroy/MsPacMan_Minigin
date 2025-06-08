@@ -11,12 +11,12 @@ namespace dae
     {
         struct SoundRequest
         {
-            enum class Type { LOAD, PLAY, VOLUME, STOP, PAUSE, RESUME };
-            Type type = Type::LOAD; 
-            sound_id id = 0; 
-            float volume = 0.0f; 
+            enum class Type { LOAD, PLAY, VOLUME, STOP, PAUSE, RESUME, MUTE, UNMUTE, MUTE_ONE, UNMUTE_ONE };
+            Type type = Type::LOAD;
+            sound_id id = 0;
+            float volume = 0.0f;
             std::string path;
-            bool loop = false; 
+            bool loop = false;
         };
 
         std::thread m_AudioThread;
@@ -24,7 +24,10 @@ namespace dae
         std::condition_variable m_Condition;
         std::queue<SoundRequest> m_Queue;
         std::unordered_map<sound_id, Mix_Chunk*> m_SoundCache;
+        std::unordered_map<int, int> m_ChannelVolumes;
+
         bool m_IsRunning = true;
+        bool m_IsMuted = false;
 
         Impl()
         {
@@ -51,7 +54,6 @@ namespace dae
             if (m_AudioThread.joinable())
                 m_AudioThread.join();
 
-            // Clean up loaded sounds
             for (auto& [id, chunk] : m_SoundCache)
                 Mix_FreeChunk(chunk);
 
@@ -72,7 +74,6 @@ namespace dae
             {
                 SoundRequest request;
                 {
-                    // Look at Powerpoint for the lock bc this not good
                     std::unique_lock<std::mutex> lock(m_Mutex);
                     m_Condition.wait(lock, [this] { return !m_Queue.empty() || !m_IsRunning; });
 
@@ -112,13 +113,25 @@ namespace dae
             case SoundRequest::Type::RESUME:
                 Mix_Resume(-1);
                 break;
+            case SoundRequest::Type::MUTE_ONE:
+                MuteImpl(request.id);
+                break;
+            case SoundRequest::Type::MUTE:
+                MuteImpl();
+                break;
+            case SoundRequest::Type::UNMUTE_ONE:
+                UnmuteImpl(request.id);
+                break;
+            case SoundRequest::Type::UNMUTE:
+                UnmuteImpl();
+                break;
             }
         }
 
         void LoadSoundImpl(sound_id id, const std::string& path)
         {
             if (m_SoundCache.find(id) != m_SoundCache.end())
-                return; // Already loaded
+                return;
 
             Mix_Chunk* sound = Mix_LoadWAV(path.c_str());
             if (!sound)
@@ -150,6 +163,64 @@ namespace dae
             auto it = m_SoundCache.find(id);
             if (it != m_SoundCache.end())
                 Mix_VolumeChunk(it->second, static_cast<int>(volume * MIX_MAX_VOLUME));
+        }
+
+        void MuteImpl(sound_id id)
+        {
+            for (int ch = 0; ch < Mix_AllocateChannels(-1); ++ch)
+            {
+                if (Mix_GetChunk(ch) == m_SoundCache[id])
+                {
+                    if (m_ChannelVolumes.find(ch) == m_ChannelVolumes.end())
+                        m_ChannelVolumes[ch] = Mix_Volume(ch, -1); // store old volume
+
+                    Mix_Volume(ch, 0);
+                }
+            }
+        }
+
+        void MuteImpl()
+        {
+            if (m_IsMuted) return;
+
+            m_IsMuted = true;
+            m_ChannelVolumes.clear();
+
+            int numChannels = Mix_AllocateChannels(-1);
+            for (int i = 0; i < numChannels; ++i)
+            {
+                int vol = Mix_Volume(i, -1);
+                m_ChannelVolumes[i] = vol;
+                Mix_Volume(i, 0);
+            }
+        }
+
+        void UnmuteImpl(sound_id id)
+        {
+            for (int ch = 0; ch < Mix_AllocateChannels(-1); ++ch)
+            {
+                if (Mix_GetChunk(ch) == m_SoundCache[id])
+                {
+                    auto it = m_ChannelVolumes.find(ch);
+                    if (it != m_ChannelVolumes.end())
+                    {
+                        Mix_Volume(ch, it->second);
+                        m_ChannelVolumes.erase(it);
+                    }
+                }
+            }
+        }
+
+        void UnmuteImpl()
+        {
+            if (!m_IsMuted) return;
+
+            m_IsMuted = false;
+            for (const auto& [channel, volume] : m_ChannelVolumes)
+            {
+                Mix_Volume(channel, volume);
+            }
+            m_ChannelVolumes.clear();
         }
     };
 
@@ -186,5 +257,25 @@ namespace dae
     void SDLSoundSystem::ResumeAll()
     {
         m_pImpl->AddRequest({ Impl::SoundRequest::Type::RESUME, 0, 0.0f, "" });
+    }
+
+    void SDLSoundSystem::Mute(sound_id id)
+    {
+        m_pImpl->AddRequest({ Impl::SoundRequest::Type::MUTE_ONE, id });
+    }
+
+    void SDLSoundSystem::MuteAll()
+    {
+        m_pImpl->AddRequest({ Impl::SoundRequest::Type::MUTE, 0, 0.0f, "" });
+    }
+
+    void SDLSoundSystem::Unmute(sound_id id)
+    {
+        m_pImpl->AddRequest({ Impl::SoundRequest::Type::UNMUTE_ONE, id });
+    }
+    
+    void SDLSoundSystem::UnmuteAll()
+    {
+        m_pImpl->AddRequest({ Impl::SoundRequest::Type::UNMUTE, 0, 0.0f, "" });
     }
 }

@@ -13,5 +13,9 @@ namespace dae
         void StopAll() override {}
         void PauseAll() override {}
         void ResumeAll() override {}
+		void Mute(sound_id) override {}
+        void MuteAll() override {}
+		void Unmute(sound_id) override {}
+        void UnmuteAll() override {}
     };
 }

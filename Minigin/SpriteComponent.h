@@ -22,11 +22,11 @@ namespace dae
         void SetAnimationRow(int row) { m_CurrentRow = row; }
         void SetAnimationColumn(int column) { m_CurrentColumn = column; }
 
-        void SetRotation(float angle);
-        float GetRotation() const { return m_Rotation; }
-
         void SetLooping(bool looping) { m_IsLooping = looping; }
         bool IsLooping() const { return m_IsLooping; }
+
+        void SetVisible(bool visible) { m_isVisible = visible; }
+        bool IsVisible() const { return m_isVisible; }
 
         void SetSprite(const std::string& texturePath, int rows, int columns, float frameDelay, float scaler);
 
@@ -41,7 +41,7 @@ namespace dae
         int m_CurrentRow = 0;
         int m_CurrentColumn = 0;
 
-        float m_Rotation = 0.0f;
         bool m_IsLooping = true;
+		bool m_isVisible = true;
     };
 }

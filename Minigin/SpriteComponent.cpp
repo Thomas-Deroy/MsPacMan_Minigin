@@ -38,7 +38,7 @@ namespace dae
 
     void SpriteComponent::Render() const
     {
-        if (!m_RenderComponent)
+        if (!m_RenderComponent || !m_isVisible)
             return;
 
         auto owner = GetOwner();
@@ -46,6 +46,7 @@ namespace dae
             return;
 
         auto worldPos = owner->GetTransform().GetWorldPosition();
+        const auto& rotation = GetOwner()->GetTransform().GetRotation();
         SDL_Rect srcRect{
             m_CurrentColumn * m_FrameWidth,
             m_CurrentRow * m_FrameHeight,
@@ -60,13 +61,7 @@ namespace dae
             static_cast<int>(m_FrameHeight * m_Scaler)
         };
 
-        Renderer::GetInstance().RenderTexture(*m_RenderComponent->GetTexture(), dstRect, srcRect, m_Rotation, SDL_FLIP_NONE
-        );
-    }
-
-    void SpriteComponent::SetRotation(float angle)
-    {
-        m_Rotation = angle;
+        Renderer::GetInstance().RenderTexture(*m_RenderComponent->GetTexture(), dstRect, srcRect, rotation.z, SDL_FLIP_NONE);
     }
 
     void dae::SpriteComponent::SetSprite(const std::string& texturePath, int rows, int columns, float frameDelay, float scaler)

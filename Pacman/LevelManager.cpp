@@ -1,5 +1,6 @@
 #include "LevelManager.h"
 #include "RenderComponent.h"
+#include "MovementComponent.h"
 #include <iostream>
 
 namespace dae
@@ -21,8 +22,14 @@ namespace dae
 
 	void LevelManager::NextLevel()
 	{
+		m_Scene->Pause();
 		++m_CurrentLevel;
 		LoadLevel();
+		for (GameObject* obj : m_LevelObjects)
+		{
+			obj->GetComponent<MovementComponent>()->FindAndSetStartNode(&m_Builder);
+		}
+		m_Scene->Resume();
 	}
 
 	void LevelManager::RestartLevel()
@@ -76,6 +83,11 @@ namespace dae
 			break;
 		}
 		
+	}
+
+	void LevelManager::AddLevelObjects(GameObject* object)
+	{
+		m_LevelObjects.emplace_back(object);
 	}
 
 	LevelBuilder* LevelManager::GetLevelBuilder()

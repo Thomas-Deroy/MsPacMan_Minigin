@@ -60,30 +60,64 @@ void dae::Scene::Resume()
     }
 }
 
+void dae::Scene::ResumeObject(GameObject* object)
+{
+    if (object == nullptr) return;
+
+    for (auto& obj : m_objects)
+    {
+        if (obj.get() == object)
+        {
+            obj->SetActive(true);
+            break;
+        }
+    }
+}
+
+void Scene::Timer(float durationSeconds, EventId eventId)
+{
+    m_PendingTimers.push_back(TimerTask{ durationSeconds, eventId });
+}
+
 void Scene::Update(float deltaTime)
 {
-    std::vector<GameObject*> toRemove;
+    for (auto it = m_TimerTasks.begin(); it != m_TimerTasks.end(); )
+    {
+        it->Remaining -= deltaTime;
+        if (it->Remaining <= 0.f)
+        {
+            Event event(it->EventToFire);
+            EventSystem::GetInstance().Notify(event);
+            it = m_TimerTasks.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 
-    dae::CollisionSystem::GetInstance().Update();
+    if (!m_PendingTimers.empty())
+    {
+        m_TimerTasks.insert(m_TimerTasks.end(), m_PendingTimers.begin(), m_PendingTimers.end());
+        m_PendingTimers.clear();
+    }
 
     for (auto& object : m_objects)
     {
-        if (object->IsMarkedForDestroy())
-        {
-            toRemove.push_back(object.get());
-            continue;
-        }
-        if (object->IsActive())  
+        if (object->IsActive())
         {
             object->Update(deltaTime);
         }
     }
 
-    for (auto* object : toRemove)
-    {
-        Remove(object);
-    }
+    m_objects.erase(std::remove_if(m_objects.begin(), m_objects.end(),
+        [](const std::unique_ptr<GameObject>& obj)
+        {
+            return obj->IsMarkedForDestroy();
+        }),
+        m_objects.end());
 
+    dae::CollisionSystem::GetInstance().Update();
 }
 
 void Scene::Render() const

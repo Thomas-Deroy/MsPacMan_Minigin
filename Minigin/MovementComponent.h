@@ -51,6 +51,9 @@ namespace dae
         void FindAndSetStartNode(LevelBuilder* builder);
         void SetIgnoreNodePreferences(bool ignore) { m_IgnoreNodePreferences = ignore; }
 
+        glm::vec2 SafeNormalize(const glm::vec2& vec) const;
+        
+
         void Reset();
 
     private:

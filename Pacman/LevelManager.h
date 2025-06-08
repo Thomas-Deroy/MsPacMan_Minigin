@@ -14,8 +14,10 @@ namespace dae
 		void NextLevel();
 		void RestartLevel();
 
-		LevelBuilder* GetLevelBuilder();
+		void AddLevelObjects(GameObject* object);
 
+
+		LevelBuilder* GetLevelBuilder();
 	private:
 		friend class Singleton<LevelManager>; 
 
@@ -29,6 +31,7 @@ namespace dae
 		LevelBuilder m_Builder;
 
 		std::unique_ptr<GameObject> m_LevelTexture{ nullptr };
+		std::vector<GameObject*> m_LevelObjects;
 		GameObject* m_LevelTexturePtr{ nullptr };
 	};
 }

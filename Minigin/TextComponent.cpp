@@ -23,7 +23,7 @@ namespace dae
 
     void TextComponent::Render() const
     {
-        if (!m_textTexture || !GetOwner())
+        if (!m_textTexture || !GetOwner() || !m_isVisible)
             return;
 
         const auto& worldPos = GetOwner()->GetTransform().GetWorldPosition();

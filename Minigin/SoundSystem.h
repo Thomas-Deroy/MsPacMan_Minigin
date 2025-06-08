@@ -21,7 +21,9 @@ namespace dae
         virtual void StopAll() = 0;
         virtual void PauseAll() = 0;
         virtual void ResumeAll() = 0;
+		virtual void Mute(sound_id id) = 0;
+        virtual void MuteAll() = 0;
+		virtual void Unmute(sound_id id) = 0;
+        virtual void UnmuteAll() = 0;
     };
-
-
 }

@@ -2,6 +2,7 @@
 #include "GhostScatterState.h"
 #include "GhostAIComponent.h"
 #include "MovementComponent.h"
+#include "GhostChaseState.h"
 
 namespace dae {
 
@@ -20,23 +21,12 @@ namespace dae {
         {
             auto target = GetTargetPosition(ghost);
             auto dir = ghost.ChooseDirectionToward(target);
+
             if (dir != glm::vec2(0, 0))
             {
                 ghost.GetLastDirection() = dir;
                 ghost.GetMovement()->SetNextDirection(dir);
                 ghost.SetDirectionCooldown(0.15f);
-				//std::cout << ghost.GetMovement()->GetTargetNode() << " AND " << ghost.GetMovement()->GetTargetDestination() << std::endl;
-                if (ghost.GetMovement()->GetTargetDestination())
-                {
-                    glm::vec2 destPos = ghost.GetMovement()->GetTargetDestination()->position;
-
-                    float distance = glm::length(ghostPos - destPos);
-
-                    if (distance < 2.0f) 
-                    {
-                        ghost.QueueStateChange(std::make_unique<GhostScatterState>());
-                    }
-                }
             }
         }
     }

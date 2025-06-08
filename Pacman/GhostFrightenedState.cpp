@@ -3,15 +3,16 @@
 #include "GhostAIComponent.h"
 #include "MovementComponent.h"
 #include "SpriteComponent.h"
+#include "EventSystem.h"
+#include "GameEvents.h"
 
 namespace dae {
 
     void GhostFrightenedState::Enter(GhostAIComponent& ghost) {
         ghost.ResetStateTimer();
-        if (auto* move = ghost.GetMovement()) {
-            move->SetSpeedMultiplier(0.75f);
-            move->ReverseDirection();
-        }
+
+        ghost.GetMovement()->SetSpeedMultiplier(0.75f);
+        ghost.GetMovement()->ReverseDirection();
 
         ghost.GetSprite()->SetAnimationRow(4);
         ghost.GetSprite()->SetAnimationColumn(0);
@@ -19,6 +20,7 @@ namespace dae {
 
     void GhostFrightenedState::Update(GhostAIComponent& ghost, float) {
         if (ghost.GetStateTimer() >= 6.0f) {
+            EventSystem::GetInstance().Notify(Event{ GhostFrightenedOver });
             ghost.QueueStateChange(std::make_unique<GhostChaseState>());
             return;
         }
@@ -40,9 +42,9 @@ namespace dae {
     }
 
     void GhostFrightenedState::Exit(GhostAIComponent& ghost) {
-        if (auto* move = ghost.GetMovement()) move->SetSpeedMultiplier(1.0f);
-
+        ghost.GetMovement()->SetSpeedMultiplier(1.0f);
         ghost.GetSprite()->SetLooping(false);
+
         switch (ghost.GetType())
         {
         case GhostType::Blinky:

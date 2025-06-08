@@ -19,6 +19,12 @@ namespace dae
 		return m_WorldPosition;
 	}
 
+	void dae::Transform::SetRotation(const glm::vec3& rot)
+	{
+		m_LocalRotation = rot;
+		SetPositionDirty();
+	}
+
 	void Transform::SetWorldPosition(const glm::vec3& pos)
 	{
 		if (m_Owner && m_Owner->GetParent())
