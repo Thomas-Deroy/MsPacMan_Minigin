@@ -14,7 +14,7 @@ namespace dae
     struct Node;
     class IGhostState;
 
-    enum class GhostType { Blinky, Pinky, Inky, Clyde };
+    enum class GhostType { Blinky, Pinky, Inky, Sue };
 
     class GhostAIComponent : public Component
     {
@@ -22,7 +22,6 @@ namespace dae
         GhostAIComponent(GameObject* owner, GameObject* player, GhostType type, bool isPlayer = false);
 
         void Update(float deltaTime) override;
-        void QueueStateChange(std::unique_ptr<IGhostState> newState);
         void ChangeState(std::unique_ptr<IGhostState> newState);
         void SetFrightened(bool frightened);
         bool GetFrightened() { return typeid(*m_CurrentState) == typeid(GhostFrightenedState); }
@@ -33,17 +32,19 @@ namespace dae
         MovementComponent* GetMovement() const { return m_MovementComponent; }
 		SpriteComponent* GetSprite() const { return m_Owner->GetComponent<SpriteComponent>(); }
 
+		// Ghost AI Functions
         glm::vec2 ChooseDirectionToward(const glm::vec2& targetPos);
         glm::vec2 GetTargetPosition() const;
         glm::vec2 CalculateChaseTarget() const;
         glm::vec2 CalculateScatterTarget() const;
         glm::vec2 GetScatterCorner() const;
-
+        // Chase
         glm::vec2 BlinkyChase() const;
         glm::vec2 PinkyChase() const;
         glm::vec2 InkyChase() const;
-        glm::vec2 ClydeChase() const;
+        glm::vec2 SueChase() const;
 
+		// State Management
         float GetStateTimer() const { return m_StateTimer; }
         void ResetStateTimer() { m_StateTimer = 0.f; }
         void SetDirectionCooldown(float time) { m_DirectionChangeCooldown = time; }
@@ -58,7 +59,6 @@ namespace dae
         GhostType m_Type;
 
         std::unique_ptr<IGhostState> m_CurrentState;
-        std::unique_ptr<IGhostState> m_QueuedState;
 
         float m_StateTimer = 0.f;
         glm::vec2 m_LastDirection = { 0, 0 };

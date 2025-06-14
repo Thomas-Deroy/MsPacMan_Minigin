@@ -23,12 +23,13 @@ namespace dae
     {
         if (!m_MovementComponent || !m_Player || !m_CurrentState) return;
 
+        // Handle ghost exit delay 
         if (!m_ReadyToExit)
         {
             m_ExitDelayTimer += deltaTime;
             if (m_ExitDelayTimer >= m_StartDelay)
             {
-                QueueStateChange(std::make_unique<GhostExitHouseState>());
+                ChangeState(std::make_unique<GhostExitHouseState>());
                 m_ReadyToExit = true;
             }
             return;
@@ -38,20 +39,11 @@ namespace dae
         m_StateTimer += deltaTime;
         m_DirectionChangeCooldown -= deltaTime;
 
-        m_CurrentState->Update(*this, deltaTime);
-
-        if (m_QueuedState)
+        if (auto newState = m_CurrentState->Update(*this, deltaTime))
         {
-            ChangeState(std::move(m_QueuedState));
-            m_QueuedState = nullptr;
+            ChangeState(std::move(newState));
         }
     }
-
-    void GhostAIComponent::QueueStateChange(std::unique_ptr<IGhostState> newState)
-    {
-        m_QueuedState = std::move(newState);
-    }
-
 
     void GhostAIComponent::ChangeState(std::unique_ptr<IGhostState> newState)
     {
@@ -71,9 +63,9 @@ namespace dae
 
         glm::vec2 bestDir = m_LastDirection;
         float bestDistance = std::numeric_limits<float>::max();
-
         glm::vec2 oppositeDir = -m_LastDirection;
 
+        // check neighbors to find the best direction 
         for (auto neighbor : currentNode->neighbors)
         {
             if (!neighbor || !neighbor->isTraversable) continue;
@@ -115,7 +107,7 @@ namespace dae
         case GhostType::Blinky: return BlinkyChase();
         case GhostType::Pinky: return PinkyChase();
         case GhostType::Inky: return InkyChase();
-        case GhostType::Clyde: return ClydeChase();
+        case GhostType::Sue: return SueChase();
         default: return { 0, 0 };
         }
     }
@@ -140,7 +132,7 @@ namespace dae
         return pacmanPos + (pacmanDir * 2.0f * 16.0f) + glm::vec2(16, -16);
     }
 
-    glm::vec2 GhostAIComponent::ClydeChase() const
+    glm::vec2 GhostAIComponent::SueChase() const
     {
         glm::vec2 pacmanPos = m_Player->GetTransform().GetWorldPosition();
         glm::vec2 ghostPos = m_Owner->GetTransform().GetWorldPosition();
@@ -164,7 +156,7 @@ namespace dae
         case GhostType::Blinky: return { 208, -8 };
         case GhostType::Pinky: return { 0, -8 };
         case GhostType::Inky: return { 208, 248 };
-        case GhostType::Clyde: return { 0, 248 };
+        case GhostType::Sue: return { 0, 248 };
         default: return { 0, 0 };
         }
     }
@@ -174,15 +166,15 @@ namespace dae
         if (GetEaten() || GetExitState())
             return;
 
-        if (frightened) {
-            QueueStateChange(std::make_unique<GhostFrightenedState>());
-        }            
+        if (frightened) 
+            ChangeState(std::make_unique<GhostFrightenedState>());          
     }
 
     void GhostAIComponent::SetStartDelay(float delay)
     {
-        m_GhostExited = false;
+        m_ExitDelayTimer = 0.f;
         m_StartDelay = delay;
+        m_ReadyToExit = false;
     }
 
 }

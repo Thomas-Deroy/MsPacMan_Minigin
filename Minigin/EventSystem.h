@@ -6,6 +6,8 @@
 
 using EventId = unsigned int;
 
+// SDBM Hash 
+
 template <int length>
 struct sdbm_hash {
     consteval static unsigned int _calculate(const char* const text, unsigned int& value) {
@@ -30,6 +32,8 @@ consteval unsigned int make_sdbm_hash(const char(&text)[N]) {
     return sdbm_hash<N - 1>::calculate(text);
 }
 
+// Event System Types
+
 struct EventArg {};
 
 struct Event {
@@ -39,6 +43,8 @@ struct Event {
     EventArg* args[MAX_ARGS]; 
     explicit Event(EventId _id) : id{ _id }, args{} {}
 };
+
+// Event System Core
 
 class EventSystem {
 public:

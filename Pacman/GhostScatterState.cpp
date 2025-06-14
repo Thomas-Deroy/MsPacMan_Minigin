@@ -9,9 +9,9 @@ namespace dae {
         ghost.ResetStateTimer();
     }
 
-    void GhostScatterState::Update(GhostAIComponent& ghost, float) {
-        if (ghost.GetStateTimer() >= 7.0f)
-            ghost.QueueStateChange(std::make_unique<GhostChaseState>());
+    std::unique_ptr<IGhostState> GhostScatterState::Update(GhostAIComponent& ghost, float) {
+        if (ghost.GetStateTimer() >= 6.0f)
+            return std::make_unique<GhostChaseState>();
 
         if (ghost.GetDirectionCooldown() <= 0.f)
         {
@@ -21,9 +21,11 @@ namespace dae {
             {
                 ghost.GetLastDirection() = dir;
                 ghost.GetMovement()->SetNextDirection(dir);
-                ghost.SetDirectionCooldown(0.15f);
+                ghost.SetDirectionCooldown(0.10f);
             }
         }
+
+		return nullptr;
     }
 
     void GhostScatterState::Exit(GhostAIComponent&) {}

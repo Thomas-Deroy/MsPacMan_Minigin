@@ -14,12 +14,11 @@ namespace dae
         ghost.GetMovement()->SetIgnoreNodePreferences(true);
     }
 
-    void GhostExitHouseState::Update(GhostAIComponent& ghost, float)
+    std::unique_ptr<IGhostState> GhostExitHouseState::Update(GhostAIComponent& ghost, float)
     {
-        if (ghost.GetStateTimer() >= 2.0f)
+        if (ghost.GetStateTimer() >= 1.5f)
         {
-            ghost.QueueStateChange(std::make_unique<GhostScatterState>());
-            return;
+            return std::make_unique<GhostScatterState>();
         }
 
         if (ghost.GetDirectionCooldown() <= 0.f)
@@ -33,6 +32,8 @@ namespace dae
                 ghost.SetDirectionCooldown(0.001f); // Needs to get out
             }
         }
+
+		return nullptr;
     }
 
     void GhostExitHouseState::Exit(GhostAIComponent& ghost)

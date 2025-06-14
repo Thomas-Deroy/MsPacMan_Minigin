@@ -12,6 +12,7 @@ namespace dae
 	public:
 		Scene& CreateScene(const std::string& name);
 		Scene& GetScene(const std::string& name);
+
 		void SetActiveScene(const std::string& name);
 		const std::string& GetActiveSceneName() { return m_activeScene->GetName(); }
 

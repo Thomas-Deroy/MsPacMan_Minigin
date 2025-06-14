@@ -6,7 +6,7 @@ namespace dae {
     class GhostExitHouseState : public IGhostState {
     public:
         void Enter(GhostAIComponent& ghost) override;
-        void Update(GhostAIComponent& ghost, float deltaTime) override;
+        std::unique_ptr<IGhostState> Update(GhostAIComponent& ghost, float deltaTime) override;
         void Exit(GhostAIComponent& ghost) override;
         glm::vec2 GetTargetPosition(const GhostAIComponent& ghost) const override;
     };

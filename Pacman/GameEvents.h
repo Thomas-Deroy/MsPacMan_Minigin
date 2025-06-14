@@ -5,12 +5,19 @@ constexpr EventId PlayerDied = make_sdbm_hash("PlayerDied");
 constexpr EventId HealthChanged = make_sdbm_hash("HealthChanged");
 constexpr EventId PointsChanged = make_sdbm_hash("PointsChanged");
 constexpr EventId AllPelletsEaten = make_sdbm_hash("AllPelletsEaten");
+constexpr EventId ExtraLife = make_sdbm_hash("ExtraLife");
+
+constexpr EventId RandomFruitSpawn = make_sdbm_hash("RandomFruitSpawn");
+constexpr EventId FruitEnterScene = make_sdbm_hash("FruitEnterScene");
+constexpr EventId FruitExitScene = make_sdbm_hash("FruitExitScene");
 
 constexpr EventId GhostFrightenedOver = make_sdbm_hash("GhostFrightenedOver");
+
+constexpr EventId NameInputCompleted = make_sdbm_hash("NameInputCompleted");
 
 // Timer events
 constexpr EventId StartTimer = make_sdbm_hash("StartTimer");
 constexpr EventId EatenAnimationTimer = make_sdbm_hash("EatenAnimationTimer");
 constexpr EventId AnimationTimer = make_sdbm_hash("AnimationTimer");
 constexpr EventId DeadAnimationTimer = make_sdbm_hash("DeadAnimationTimer");
-constexpr EventId Test = make_sdbm_hash("Test");
+constexpr EventId NextLevelTimer = make_sdbm_hash("NextLevelTimer");

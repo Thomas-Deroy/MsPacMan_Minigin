@@ -12,6 +12,7 @@ namespace dae
 {
 	class ColliderComponent;
 
+	// Base CollisionLayer
 	enum class CollisionLayer : unsigned int
 	{
 		Default = make_sdbm_hash("Default"),
@@ -35,6 +36,7 @@ namespace dae
 	public:
 		void RegisterCollider(ColliderComponent* collider);
 		void UnregisterCollider(ColliderComponent* collider);
+
 		void Update();
 
 		void SetLayerMask(CollisionLayer layer, unsigned int mask);

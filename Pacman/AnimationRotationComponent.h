@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "GameObject.h"
+#include "MovementComponent.h"
 #include <queue>
 
 namespace dae
@@ -15,6 +16,8 @@ namespace dae
 
     private:
         void StepToNextAngle();
+
+		MovementComponent* m_MovementComponent{ nullptr };
 
         int m_remainingSteps{};         
         float m_stepDegrees{};          

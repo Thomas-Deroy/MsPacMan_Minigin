@@ -27,7 +27,14 @@ namespace dae
             return;
 
         const auto& worldPos = GetOwner()->GetTransform().GetWorldPosition();
-        Renderer::GetInstance().RenderTexture(*m_textTexture, worldPos.x, worldPos.y);
+
+        RenderParams params{};
+        params.x = worldPos.x;
+        params.y = worldPos.y;
+        params.color = m_color;
+
+        Renderer::GetInstance().RenderTexture(*m_textTexture, params);
+
     }
 
     void TextComponent::SetText(const std::string& text)
@@ -37,5 +44,16 @@ namespace dae
             m_text = text;
             m_needsUpdate = true;
         }
+    }
+
+    void TextComponent::SetColor(float r, float g, float b, float a)
+    {
+        m_color = SDL_Color{
+            static_cast<Uint8>(r * 255.0f),
+            static_cast<Uint8>(g * 255.0f),
+            static_cast<Uint8>(b * 255.0f),
+            static_cast<Uint8>(a * 255.0f)
+        };
+        m_needsUpdate = true;
     }
 }

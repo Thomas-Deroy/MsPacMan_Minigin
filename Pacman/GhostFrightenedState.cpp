@@ -18,11 +18,10 @@ namespace dae {
         ghost.GetSprite()->SetAnimationColumn(0);
     }
 
-    void GhostFrightenedState::Update(GhostAIComponent& ghost, float) {
+    std::unique_ptr<IGhostState> GhostFrightenedState::Update(GhostAIComponent& ghost, float) {
         if (ghost.GetStateTimer() >= 6.0f) {
             EventSystem::GetInstance().Notify(Event{ GhostFrightenedOver });
-            ghost.QueueStateChange(std::make_unique<GhostChaseState>());
-            return;
+            return std::make_unique<GhostChaseState>();
         }
 
         if (ghost.GetStateTimer() >= 4.0f)
@@ -36,9 +35,11 @@ namespace dae {
             {
                 ghost.GetLastDirection() = dir;
                 ghost.GetMovement()->SetNextDirection(dir);
-                ghost.SetDirectionCooldown(0.15f);
+                ghost.SetDirectionCooldown(0.10f);
             }
         }
+
+		return nullptr;
     }
 
     void GhostFrightenedState::Exit(GhostAIComponent& ghost) {
@@ -56,7 +57,7 @@ namespace dae {
         case GhostType::Inky:
             ghost.GetSprite()->SetAnimationRow(2);
             break;
-        case GhostType::Clyde:
+        case GhostType::Sue:
             ghost.GetSprite()->SetAnimationRow(3);
             break;
         default:

@@ -14,11 +14,6 @@ namespace dae
 		m_LevelBuilder = builder;
     }
 
-    void MovementComponent::SetNextDirection(const glm::vec2& dir)
-    {
-        if (dir != glm::vec2{ 0, 0 }) m_NextDirection = dir;
-    }
-
     void MovementComponent::Update(float deltaTime)
     {
         m_Speed = m_BaseSpeed * m_SpeedMultiplier;
@@ -54,8 +49,8 @@ namespace dae
                         break;
                     }
                 }
-                UpdateAnimationRow();
             }
+
         }
 
         if (m_TargetNode)
@@ -82,38 +77,24 @@ namespace dae
                 m_Owner->SetPosition(newPos.x, newPos.y, newPos.z);
             }
         }
-
+        UpdateAnimationRow();
     }
 
     void MovementComponent::ReverseDirection()
     {
-        // Reverse current direction
         m_CurrentDirection = -m_CurrentDirection;
 
-        // Also reverse next direction if it's set
         if (m_NextDirection != glm::vec2{ 0, 0 })
         {
             m_NextDirection = -m_NextDirection;
         }
 
-        // Swap current and target nodes to handle the reversal
         if (m_TargetNode)
         {
             Node* temp = m_CurrentNode;
             m_CurrentNode = m_TargetNode;
             m_TargetNode = temp;
         }
-    }
-
-    void MovementComponent::SetCurrentNode(Node* node)
-    {
-        m_CurrentNode = node;
-        m_TargetNode = nullptr;
-    }
-
-    void MovementComponent::SetTargetNode(Node* targetNode)
-    {
-        m_TargetNode = targetNode;
     }
 
     bool MovementComponent::CanMove(const glm::vec2& dir) const
@@ -124,11 +105,11 @@ namespace dae
         {
             glm::vec2 dirToNeighbor = neighbor->position - m_CurrentNode->position;
             if (glm::normalize(dirToNeighbor) == glm::normalize(dir)) {
-                if (!neighbor->preferNot)
+                if (m_IgnoreTunnels && neighbor->isTunnel)
+                    return false;
+
+                if (!neighbor->preferNot || m_IgnoreNodePreferences)
                     return true;
-                else if (m_IgnoreNodePreferences) {
-                    return true; 
-				}
             }
 
         }
@@ -139,17 +120,19 @@ namespace dae
     {
         m_CurrentNode = node;
         m_TargetNode = nullptr;
+
+        if (!m_LevelBuilder) return;
         // Tunnel logic
-        if (node->isTunnel && m_LevelBuilder)
+        if (node->isTunnel && !m_IgnoreTunnels)
         {
             for (const auto& pair : m_LevelBuilder->GetTunnelPairs())
             {
                 if (node == pair.left)
                 {
                     m_CurrentNode = pair.right;
-					m_Owner->SetPosition(pair.right->position.x - 24.f, pair.right->position.y, 0.0f); // Adjusted for tunnel offset
+					m_Owner->SetPosition(pair.right->position.x - 24.f, pair.right->position.y, 0.0f); 
                     m_TargetNode = nullptr;
-                    FindAndSetStartNode(m_LevelBuilder);
+                    FindAndSetNode(m_LevelBuilder);
 					return;
                 }
                 else if (node == pair.right)
@@ -157,24 +140,15 @@ namespace dae
                     m_CurrentNode = pair.left;
                     m_Owner->SetPosition(pair.left->position.x, pair.left->position.y, 0.0f);
                     m_TargetNode = nullptr;
-					FindAndSetStartNode(m_LevelBuilder);
+					FindAndSetNode(m_LevelBuilder);
                     return;
                 }
             }
         }
     }
 
-    const glm::vec2& MovementComponent::GetCurrentDirection() const
-    {
-        return m_CurrentDirection;
-    }
 
-    const glm::vec2& MovementComponent::GetNextDirection() const
-    {
-        return m_NextDirection;
-    }
-
-    void MovementComponent::FindAndSetStartNode(LevelBuilder* builder)
+    void MovementComponent::FindAndSetNode(LevelBuilder* builder)
     {
         if (!builder) return;
 
@@ -192,6 +166,32 @@ namespace dae
 
             m_Owner->GetTransform().SetWorldPosition(glm::vec3(nodeCenter, 0.0f));
         }
+    }
+
+    void MovementComponent::UpdateAnimationRow()
+    {
+        if (!m_Sprite || m_AnimationType == AnimationType::None) return;
+
+        if (m_AnimationType == AnimationType::Pacman)
+        {
+            if (m_CurrentDirection.x > 0) m_Sprite->SetAnimationRow(0);
+            else if (m_CurrentDirection.x < 0) m_Sprite->SetAnimationRow(1);
+            else if (m_CurrentDirection.y < 0) m_Sprite->SetAnimationRow(2);
+            else if (m_CurrentDirection.y > 0) m_Sprite->SetAnimationRow(3);
+			return;
+        }
+
+        if (m_Owner->GetComponent<GhostAIComponent>()->GetFrightened()) return;
+
+		if (m_AnimationType == AnimationType::Ghost)
+		{
+            if (m_CurrentDirection.x > 0) m_Sprite->SetAnimationColumn(0);
+            else if (m_CurrentDirection.x < 0) m_Sprite->SetAnimationColumn(1);
+            else if (m_CurrentDirection.y < 0) m_Sprite->SetAnimationColumn(2);
+            else if (m_CurrentDirection.y > 0) m_Sprite->SetAnimationColumn(3);
+			return;
+		}
+
     }
 
     void MovementComponent::SetTargetDestination(Node* destination)
@@ -231,44 +231,33 @@ namespace dae
             m_Path.insert(m_Path.begin(), current);
             current = cameFrom[current];
         }
-
         m_CurrentPathIndex = 0;
     }
 
-    void MovementComponent::UpdateAnimationRow()
+    void MovementComponent::SetNextDirection(const glm::vec2& dir)
     {
-        if (!m_Sprite) return;
+        if (dir != glm::vec2{ 0, 0 }) m_NextDirection = dir;
+    }
 
-        if (m_AnimationType == AnimationType::Pacman)
-        {
-            if (m_CurrentDirection.x > 0) m_Sprite->SetAnimationRow(0);
-            else if (m_CurrentDirection.x < 0) m_Sprite->SetAnimationRow(1);
-            else if (m_CurrentDirection.y < 0) m_Sprite->SetAnimationRow(2);
-            else if (m_CurrentDirection.y > 0) m_Sprite->SetAnimationRow(3);
-        }
+    void MovementComponent::SetCurrentNode(Node* node)
+    {
+        m_CurrentNode = node;
+        m_TargetNode = nullptr;
+    }
 
-        auto ghostComponent = m_Owner->GetComponent<GhostAIComponent>();
-		if (m_AnimationType == AnimationType::Ghost)
-		{
-            if (ghostComponent)
-            {
-                if (!ghostComponent->GetFrightened()) {
-                    if (m_CurrentDirection.x > 0) m_Sprite->SetAnimationColumn(0);
-                    else if (m_CurrentDirection.x < 0) m_Sprite->SetAnimationColumn(1);
-                    else if (m_CurrentDirection.y < 0) m_Sprite->SetAnimationColumn(2);
-                    else if (m_CurrentDirection.y > 0) m_Sprite->SetAnimationColumn(3);
-                }
-            }
-            else 
-            {
-                if (m_CurrentDirection.x > 0) m_Sprite->SetAnimationColumn(0);
-                else if (m_CurrentDirection.x < 0) m_Sprite->SetAnimationColumn(1);
-                else if (m_CurrentDirection.y < 0) m_Sprite->SetAnimationColumn(2);
-                else if (m_CurrentDirection.y > 0) m_Sprite->SetAnimationColumn(3);
-            }
+    void MovementComponent::SetTargetNode(Node* targetNode)
+    {
+        m_TargetNode = targetNode;
+    }
 
-		}
+    const glm::vec2& MovementComponent::GetCurrentDirection() const
+    {
+        return m_CurrentDirection;
+    }
 
+    const glm::vec2& MovementComponent::GetNextDirection() const
+    {
+        return m_NextDirection;
     }
 
     glm::vec2 dae::MovementComponent::SafeNormalize(const glm::vec2& vec) const {
@@ -287,6 +276,22 @@ namespace dae
         m_FinalTargetNode = nullptr;
 
         m_IgnoreNodePreferences = false;
+
+        UpdateAnimationRow();
+    }
+
+    void dae::MovementComponent::Reset(LevelBuilder* builder)
+    {
+        m_CurrentDirection = glm::vec2{ 0, 0 };
+        m_NextDirection = glm::vec2{ 0, 0 };
+
+        m_Path.clear();
+        m_CurrentPathIndex = 0;
+        m_TargetNode = nullptr;
+        m_FinalTargetNode = nullptr;
+
+        m_IgnoreNodePreferences = false;
+		FindAndSetNode(builder);
 
         UpdateAnimationRow();
     }

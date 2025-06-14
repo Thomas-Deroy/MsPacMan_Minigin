@@ -21,7 +21,7 @@ namespace dae
     private:
         void OnPlayerDied();
         void OnHealthChanged();
-        void UpdateRender();
+        void UpdateDisplay();
         void AddLifeIcon(int index);
         void RemoveLifeIcon();
 

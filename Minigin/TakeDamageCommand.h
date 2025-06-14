@@ -16,14 +16,7 @@ namespace dae
 
         void Execute() override
         {
-            if (m_Player)
-            {
-                auto health = m_Player->GetComponent<HealthComponent>();
-                if (health)
-                {
-                    health->TakeDamage(m_Damage);
-                }
-            }
+            m_Player->GetComponent<HealthComponent>()->TakeDamage(m_Damage);
         }
 
     private:

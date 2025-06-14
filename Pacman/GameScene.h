@@ -7,7 +7,7 @@
 #endif
 #endif
 
-// ENGINE
+// --- ENGINE --- //
 
 #include "Minigin.h"
 #include "SceneManager.h"
@@ -25,33 +25,39 @@
 #include "RenderComponent.h"
 #include "SpriteComponent.h"
 #include "FPSComponent.h"
-#include "RotateComponent.h"
 #include "ColliderComponent.h"
 
-// GAME
+// --- GAME --- //
 
+#include "HighScoreManager.h"
+#include "GameEvents.h"
+#include "LevelBuilder.h"
+#include "LevelManager.h"
+
+// Components
+#include "GhostAIComponent.h"
+#include "PowerPelletComponent.h"
+#include "FruitDisplayComponent.h"
+#include "NameInputComponent.h"
+#include "FruitComponent.h"
 #include "LivesDisplayComponent.h"
 #include "HealthComponent.h"
 #include "PointsDisplayComponent.h"
 #include "PointsComponent.h"
 #include "AnimationRotationComponent.h"
 
-#include "GameEvents.h"
-#include "LevelBuilder.h"
-#include "LevelManager.h"
-#include "HighScoreManager.h"
-
-#include "TeleportComponent.h"
-#include "GhostAIComponent.h"
-#include "PowerPelletComponent.h"
+// States
 #include "GhostEatenState.h"
 #include "GhostChaseState.h"
-#include "NameInputComponent.h"
+#include "FruitWanderState.h"
+#include "FruitEnterState.h"
+#include "FruitHiddenState.h"
 
+// Commands
 #include "MoveCommand.h"
 #include "TakeDamageCommand.h"
 #include "AddPointsCommand.h"
-#include "LetterUpCommand.h"
+#include "NameInputCommand.h"
 #include "CheatCommand.h"
 
 #include <iostream>

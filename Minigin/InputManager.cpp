@@ -24,12 +24,12 @@ namespace dae
             m_KeyboardBindings[key].emplace_back(state, std::move(command));
     }
 
-    void InputManager::BindCommand(SDL_GameControllerButton button, KeyState state, std::unique_ptr<Command> command)
+    void InputManager::BindCommand(int controllerIndex, SDL_GameControllerButton button, KeyState state, std::unique_ptr<Command> command)
     {
 		if (m_ShouldClearBinds)
-			m_PendingControllerBindings[button].emplace_back(state, std::move(command));
+			m_PendingControllerBindings[controllerIndex][button].emplace_back(state, std::move(command));
 		else
-            m_ControllerBindings[button].emplace_back(state, std::move(command));
+            m_ControllerBindings[controllerIndex][button].emplace_back(state, std::move(command));
     }
 
     void InputManager::RemoveBind(SDL_Keycode key, KeyState state)
@@ -47,19 +47,24 @@ namespace dae
         }
     }
 
-    void InputManager::RemoveBind(SDL_GameControllerButton button, KeyState state)
+    void InputManager::RemoveBind(int controllerIndex, SDL_GameControllerButton button, KeyState state)
     {
-        if (m_ControllerBindings.contains(button))
-        {
-            auto& bindings = m_ControllerBindings[button];
-            bindings.erase(std::remove_if(bindings.begin(), bindings.end(),
-                [state](const auto& pair) { return pair.first == state; }), bindings.end());
+        if (!m_ControllerBindings.contains(controllerIndex))
+            return;
 
-            if (bindings.empty())
-            {
-                m_ControllerBindings.erase(button);
-            }
-        }
+        auto& buttonMap = m_ControllerBindings[controllerIndex];
+        if (!buttonMap.contains(button))
+            return;
+
+        auto& bindings = buttonMap[button];
+        bindings.erase(std::remove_if(bindings.begin(), bindings.end(),
+            [state](const auto& pair) { return pair.first == state; }), bindings.end());
+
+        if (bindings.empty())
+            buttonMap.erase(button);
+
+        if (buttonMap.empty())
+            m_ControllerBindings.erase(controllerIndex);
     }
 
     void dae::InputManager::ClearAllBinds()
@@ -83,11 +88,14 @@ namespace dae
             }
         }
 
-        for (auto& [button, vec] : m_PendingControllerBindings)
+        for (auto& [controllerIndex, bindings] : m_PendingControllerBindings)
         {
-            for (auto& [state, command] : vec)
+            for (auto& [button, vec] : bindings)
             {
-                m_ControllerBindings[button].emplace_back(state, std::move(command));
+                for (auto& [state, command] : vec)
+                {
+                    m_ControllerBindings[controllerIndex][button].emplace_back(state, std::move(command));
+                }
             }
         }
 
@@ -95,6 +103,13 @@ namespace dae
         m_PendingControllerBindings.clear();
     }
 
+    bool InputManager::IsControllerConnected(int controllerIndex) const
+    {
+        if (controllerIndex < 0 || controllerIndex >= static_cast<int>(m_Gamepads.size()))
+            return false;
+
+        return m_Gamepads[controllerIndex] && m_Gamepads[controllerIndex]->IsConnected();
+    }
 
     bool InputManager::ProcessInput()
     {
@@ -141,25 +156,28 @@ namespace dae
                 { XINPUT_GAMEPAD_X, SDL_CONTROLLER_BUTTON_X},
             };
 
+            int controllerIndex = gamepad->GetIndex();
+            auto& controllerPrevStates = previousControllerStates[controllerIndex];
+            auto& bindings = m_ControllerBindings[controllerIndex];
+
             for (const auto& [xinputButton, sdlButton] : buttonMappings)
             {
                 bool buttonPressed = gamepad->GetButtonState(xinputButton);
-                bool wasPressed = previousControllerStates.contains(sdlButton) ? previousControllerStates[sdlButton] : false;
+                bool wasPressed = controllerPrevStates.contains(sdlButton) ? controllerPrevStates[sdlButton] : false;
 
-                for (auto& [keyState, command] : m_ControllerBindings[sdlButton])
+                for (auto& [keyState, command] : bindings[sdlButton])
                 {
-                    if (command)
+                    if (!command) continue;
+
+                    if ((keyState == KeyState::Pressed && !wasPressed && buttonPressed) ||
+                        (keyState == KeyState::Down && buttonPressed) ||
+                        (keyState == KeyState::Up && wasPressed && !buttonPressed))
                     {
-                        if ((keyState == KeyState::Pressed && !wasPressed && buttonPressed) ||
-                            (keyState == KeyState::Down && buttonPressed) ||
-                            (keyState == KeyState::Up && wasPressed && !buttonPressed))
-                        {
-                            command->Execute();
-                        }
+                        command->Execute();
                     }
                 }
 
-                previousControllerStates[sdlButton] = buttonPressed;
+                controllerPrevStates[sdlButton] = buttonPressed;
             }
         }
 

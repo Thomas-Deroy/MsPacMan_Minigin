@@ -33,10 +33,14 @@ namespace dae
     private:
         RenderComponent* m_RenderComponent;
 
-        int m_Rows, m_Columns;
-        int m_FrameWidth, m_FrameHeight;
-        float m_FrameDelay, m_Scaler;
+        int m_Rows{};
+        int m_Columns{};
+        int m_FrameWidth{};
+        int m_FrameHeight{};
+        float m_FrameDelay{};
+        float m_Scaler{};
         float m_AccumulatedTime = 0;
+
         int m_CurrentFrame = 0;
         int m_CurrentRow = 0;
         int m_CurrentColumn = 0;

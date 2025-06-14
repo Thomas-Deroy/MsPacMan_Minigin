@@ -8,6 +8,18 @@ namespace dae
 	/**
 	 * Simple RAII wrapper for the SDL renderer
 	 */
+
+	struct RenderParams {
+		float x = 0.f;
+		float y = 0.f;
+		float width = 0.f;
+		float height = 0.f;
+		SDL_Color color = { 255, 255, 255, 255 };
+		float rotation = 0.f;
+		SDL_RendererFlip flip = SDL_FLIP_NONE;
+		bool useRotation = false;
+	};
+
 	class Renderer final : public Singleton<Renderer>
 	{
 		SDL_Renderer* m_renderer{};
@@ -18,12 +30,8 @@ namespace dae
 		void Render() const;
 		void Destroy();
 
-		void RenderTexture(const Texture2D& texture, float x, float y) const;
-		void RenderTexture(const Texture2D& texture, float x, float y, float width, float height) const;
-		void RenderTexture(const Texture2D& texture, float x, float y, float width, float height, const SDL_Color& color) const;
-		void RenderTexture(const Texture2D& texture, const SDL_Rect& dstRect, const SDL_Rect& srcRect, double angle, SDL_RendererFlip flip) const; 
-		void RenderTexture(const Texture2D& texture, float x, float y, float width, float height, const SDL_Color& color, float rotationDegrees) const;
-
+		void RenderTexture(const Texture2D& texture, const RenderParams& params) const;
+		void RenderTexture(const Texture2D& texture, const SDL_Rect& dstRect, const SDL_Rect& srcRect, double angle, SDL_RendererFlip flip) const;
 
 		SDL_Renderer* GetSDLRenderer() const;
 

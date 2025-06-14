@@ -26,6 +26,8 @@ public:
         return (state.Gamepad.wButtons & button) != 0;
     }
 
+    int GetIndex() const { return m_Index; }
+
 private:
     int m_Index;
 };
@@ -35,3 +37,4 @@ Gamepad::~Gamepad() = default;
 
 bool Gamepad::IsConnected() const { return m_Impl->IsConnected(); }
 bool Gamepad::GetButtonState(int button) const { return m_Impl->GetButtonState(button); }
+int Gamepad::GetIndex() const { return m_Impl->GetIndex(); }

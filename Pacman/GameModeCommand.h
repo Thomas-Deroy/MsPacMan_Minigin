@@ -24,14 +24,20 @@ namespace dae
 
             switch (index)
             {
-            case 0: selectedMode = dae::GameMode::OnePlayer; break;
-            case 1: selectedMode = dae::GameMode::TwoPlayer; break;
-            case 2: selectedMode = dae::GameMode::Versus; break;
-            default: return;
+            case 0: 
+                selectedMode = dae::GameMode::OnePlayer; 
+                break;
+            case 1: 
+                selectedMode = dae::GameMode::TwoPlayer;
+                break;
+            case 2: 
+                selectedMode = dae::GameMode::Versus; 
+                break;
+            default: 
+                return;
             }
 
             m_SceneManager.SetActiveScene("Game");
-
 			LoadGameScene(m_SceneManager.GetScene("Game"), m_SceneManager, m_LevelManager, selectedMode);
         }
 

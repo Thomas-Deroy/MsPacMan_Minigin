@@ -8,21 +8,18 @@ namespace dae
     class UIMoveCommand : public Command
     {
     public:
-        // delta should be +1 (down) or -1 (up)
+        // +1 (down) or -1 (up)
         UIMoveCommand(GameObject* object, int delta)
-            : m_pObject(object), m_Delta(delta) {
+            : m_GameObject(object), m_Delta(delta) {
         }
 
         void Execute() override
         {
-            if (!m_pObject) return;
-            auto comp = m_pObject->GetComponent<UIMovementComponent>();
-            if (!comp) return;
-            comp->MoveSelection(m_Delta);
+            m_GameObject->GetComponent<UIMovementComponent>()->MoveSelection(m_Delta);
         }
 
     private:
-        GameObject* m_pObject;
+        GameObject* m_GameObject;
         int m_Delta;
     };
 }

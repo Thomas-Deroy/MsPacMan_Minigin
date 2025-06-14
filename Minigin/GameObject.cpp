@@ -67,6 +67,12 @@ namespace dae
         m_transform.SetPositionDirty();
     }
 
+    void GameObject::SetPosition(glm::vec2 pos)
+    {
+        m_transform.SetLocalPosition({ pos, 0 });
+        m_transform.SetPositionDirty();
+    }
+
     glm::vec3 GameObject::GetPosition() const
     {
         return m_transform.GetWorldPosition();

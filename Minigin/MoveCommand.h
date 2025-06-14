@@ -15,12 +15,7 @@ namespace dae
 
         void Execute() override
         {
-            if (!m_GameObject) return;
-
-            auto moveComp = m_GameObject->GetComponent<MovementComponent>();
-            if (!moveComp) return;
-
-            moveComp->SetNextDirection(m_Direction); 
+            m_GameObject->GetComponent<MovementComponent>()->SetNextDirection(m_Direction);
         }
 
     private:

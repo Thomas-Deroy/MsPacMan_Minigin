@@ -9,6 +9,7 @@ namespace dae
     AnimationRotationComponent::AnimationRotationComponent(GameObject* owner)
         : Component(owner)
     {
+		m_MovementComponent = owner->GetComponent<MovementComponent>();
     }
 
     void AnimationRotationComponent::Rotate(int times, float stepDegrees)
@@ -23,7 +24,6 @@ namespace dae
 
         // Ensure the rotation is relative to the current rotation
         m_targetAngle = GetOwner()->GetTransform().GetRotation().z + m_stepDegrees;
-		std::cout << "Starting rotation: " << m_targetAngle << " degrees, steps: " << m_remainingSteps << std::endl;
     }
 
     void AnimationRotationComponent::Update(float deltaTime)
@@ -47,12 +47,8 @@ namespace dae
 
         m_remainingSteps--;
         if (m_remainingSteps > 0)
-        {
             m_targetAngle += m_stepDegrees;
-        }
         else
-        {
             m_isRotating = false;
-        }
     }
 }

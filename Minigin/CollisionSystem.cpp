@@ -24,6 +24,7 @@ namespace dae
 
         std::unordered_set<ColliderPair, PairHash> currentCollisions;
 
+		// Check for collision
         for (size_t i = 0; i < m_Colliders.size(); ++i)
         {
             auto* a = m_Colliders[i];
@@ -33,7 +34,6 @@ namespace dae
             {
                 auto* b = m_Colliders[j];
                 if (!b) continue;
-
 
                 if (a->IsOverlapping(*b))
                 {

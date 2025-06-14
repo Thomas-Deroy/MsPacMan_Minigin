@@ -83,6 +83,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Visual Leak Detector\include;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <UseDynamicDebugging>false</UseDynamicDebugging>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,6 +122,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Visual Leak Detector\include;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <UseDynamicDebugging>false</UseDynamicDebugging>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,10 +153,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Minigin\LivesDisplayComponent.cpp" />
-    <ClCompile Include="..\Minigin\PointsDisplayComponent.cpp" />
     <ClCompile Include="AnimationRotationComponent.cpp" />
     <ClCompile Include="FruitComponent.cpp" />
+    <ClCompile Include="FruitDisplayComponent.cpp" />
+    <ClCompile Include="FruitEnterState.cpp" />
+    <ClCompile Include="FruitExitState.cpp" />
+    <ClCompile Include="FruitHiddenState.cpp" />
+    <ClCompile Include="FruitWanderState.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GhostAIComponent.cpp" />
     <ClCompile Include="GhostChaseState.cpp" />
@@ -165,24 +170,26 @@
     <ClCompile Include="HighScoreManager.cpp" />
     <ClCompile Include="LevelBuilder.cpp" />
     <ClCompile Include="LevelManager.cpp" />
+    <ClCompile Include="LivesDisplayComponent.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MenuScene.cpp" />
     <ClCompile Include="MovementComponent.cpp" />
     <ClCompile Include="NameInputComponent.cpp" />
-    <ClCompile Include="TeleportComponent.cpp" />
+    <ClCompile Include="PointsDisplayComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Minigin\AddPointsCommand.h" />
-    <ClInclude Include="..\Minigin\HealthComponent.h" />
-    <ClInclude Include="..\Minigin\LivesDisplayComponent.h" />
     <ClInclude Include="..\Minigin\MoveCommand.h" />
     <ClInclude Include="..\Minigin\MovementComponent.h" />
-    <ClInclude Include="..\Minigin\PointsComponent.h" />
-    <ClInclude Include="..\Minigin\PointsDisplayComponent.h" />
     <ClInclude Include="..\Minigin\TakeDamageCommand.h" />
     <ClInclude Include="AnimationRotationComponent.h" />
     <ClInclude Include="CheatCommand.h" />
     <ClInclude Include="FruitComponent.h" />
+    <ClInclude Include="FruitDisplayComponent.h" />
+    <ClInclude Include="FruitEnterState.h" />
+    <ClInclude Include="FruitExitState.h" />
+    <ClInclude Include="FruitHiddenState.h" />
+    <ClInclude Include="FruitWanderState.h" />
     <ClInclude Include="GameEvents.h" />
     <ClInclude Include="GameModeCommand.h" />
     <ClInclude Include="GameScene.h" />
@@ -192,17 +199,20 @@
     <ClInclude Include="GhostExitHouseState.h" />
     <ClInclude Include="GhostFrightenedState.h" />
     <ClInclude Include="GhostScatterState.h" />
+    <ClInclude Include="HealthComponent.h" />
     <ClInclude Include="HighScoreManager.h" />
+    <ClInclude Include="IFruitState.h" />
     <ClInclude Include="IGhostState.h" />
-    <ClInclude Include="LetterUpCommand.h" />
+    <ClInclude Include="LivesDisplayComponent.h" />
+    <ClInclude Include="NameInputCommand.h" />
     <ClInclude Include="LevelBuilder.h" />
     <ClInclude Include="LevelManager.h" />
     <ClInclude Include="MenuScene.h" />
     <ClInclude Include="NameInputComponent.h" />
+    <ClInclude Include="PointsComponent.h" />
+    <ClInclude Include="PointsDisplayComponent.h" />
     <ClInclude Include="PowerPelletComponent.h" />
     <ClInclude Include="UIMoveCommand.h" />
-    <ClInclude Include="SceneSwapCommand.h" />
-    <ClInclude Include="TeleportComponent.h" />
     <ClInclude Include="UIMovementComponent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

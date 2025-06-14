@@ -15,6 +15,7 @@ namespace dae
 
     enum class AnimationType 
     {
+        None,
         Pacman,
 		Ghost
 	};
@@ -26,20 +27,21 @@ namespace dae
 
         void Update(float deltaTime) override;
 
+        // Speed
         void SetSpeedMultiplier(float multiplier) { m_SpeedMultiplier = multiplier; }
         float GetSpeedMultiplier() const { return m_SpeedMultiplier; }
 
         void SetBaseSpeed(float speed) { m_BaseSpeed = speed; }
         float GetBaseSpeed() const { return m_BaseSpeed; }
 
-		//DIRECTION
+		// Direction
         void SetNextDirection(const glm::vec2& dir);
         void ReverseDirection();
 
         const glm::vec2& GetCurrentDirection() const;
         const glm::vec2& GetNextDirection() const;
 
-        //NODES
+        // Nodes
         void SetTargetNode(Node* targetNode);
 		Node* GetTargetNode() const { return m_TargetNode; }
         void SetTargetDestination(Node* destination);
@@ -48,13 +50,15 @@ namespace dae
         void SetCurrentNode(Node* node);
         Node* GetCurrentNode() const { return m_CurrentNode; }
 
-        void FindAndSetStartNode(LevelBuilder* builder);
+        void FindAndSetNode(LevelBuilder* builder);
+
         void SetIgnoreNodePreferences(bool ignore) { m_IgnoreNodePreferences = ignore; }
+		void SetIgnoreTunnels(bool ignore) { m_IgnoreTunnels = ignore; }
 
         glm::vec2 SafeNormalize(const glm::vec2& vec) const;
         
-
         void Reset();
+        void Reset(LevelBuilder* builder);
 
     private:
         bool CanMove(const glm::vec2& dir) const;
@@ -72,6 +76,8 @@ namespace dae
 
         Node* m_CurrentNode{ nullptr };
         Node* m_TargetNode{ nullptr };
+
+		bool m_IgnoreTunnels{ false };
         bool m_IgnoreNodePreferences{ false };
 
 		AnimationType m_AnimationType;

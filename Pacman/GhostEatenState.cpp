@@ -14,9 +14,8 @@ namespace dae {
         ghost.GetSprite()->SetAnimationRow(5);
     }
 
-    void GhostEatenState::Update(GhostAIComponent& ghost, float) {
+    std::unique_ptr<IGhostState> GhostEatenState::Update(GhostAIComponent& ghost, float) {
         glm::vec2 ghostPos = ghost.GetOwner()->GetTransform().GetWorldPosition();
-
         if (ghost.GetDirectionCooldown() <= 0.f)
         {
             auto target = GetTargetPosition(ghost);
@@ -26,9 +25,10 @@ namespace dae {
             {
                 ghost.GetLastDirection() = dir;
                 ghost.GetMovement()->SetNextDirection(dir);
-                ghost.SetDirectionCooldown(0.15f);
+                ghost.SetDirectionCooldown(0.10f);
             }
         }
+		return nullptr;
     }
 
     void GhostEatenState::Exit(GhostAIComponent& ghost) {
@@ -46,7 +46,7 @@ namespace dae {
         case GhostType::Inky:
             ghost.GetSprite()->SetAnimationRow(2);
             break;
-        case GhostType::Clyde:
+        case GhostType::Sue:
             ghost.GetSprite()->SetAnimationRow(3);
             break;
         default:

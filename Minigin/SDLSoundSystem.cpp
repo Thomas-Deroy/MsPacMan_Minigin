@@ -133,7 +133,8 @@ namespace dae
             if (m_SoundCache.find(id) != m_SoundCache.end())
                 return;
 
-            Mix_Chunk* sound = Mix_LoadWAV(path.c_str());
+            std::string fullPath = "../Data/" + path;
+            Mix_Chunk* sound = Mix_LoadWAV(fullPath.c_str());
             if (!sound)
             {
                 std::cerr << "Failed to load sound: " << path << " - " << Mix_GetError() << "\n";

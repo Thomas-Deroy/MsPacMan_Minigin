@@ -15,7 +15,6 @@ namespace dae
 		EventId EventToFire;
 	};
 
-
 	class Scene final
 	{
 	public:

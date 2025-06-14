@@ -35,17 +35,32 @@ namespace dae
     {
     public:
         ~LevelBuilder();
-        void LoadLevelFromFile(const std::string& filePath, Scene* scene, float offsetX = 0.f, float offsetY = 0.f);
+        void LoadLevelFromFile(int levelNumber, Scene* scene, float offsetX = 0.f, float offsetY = 0.f);
         void UnloadLevel();
 
 		void SetPelletColor(float r, float g, float b, float alpha = 1.f);
+        void SetPowerPelletColor(float r, float g, float b, float alpha = 1.f);
+
         void ResetPellets();
+        void ClearPellets();
         void RemovePellet(GameObject* pellet);
 
         Node* FindClosestNode(const glm::vec2& position);
+        const std::vector<Node*> GetAllNodes() const
+        {
+            std::vector<Node*> allNodes;
+            for (const auto& row : m_Nodes)
+            {
+                allNodes.insert(allNodes.end(), row.begin(), row.end());
+            }
+            return allNodes;
+        };
         Node* GetCenterNode() const { return m_CenterNode; }
 
         GameObject* GetGhostHouse() const { return m_GhostHousePtr; };
+
+        GameObject* GetLeftFruitTriggerArea() const { return m_LeftFruitTriggerAreaPtr; };
+		GameObject* GetRightFruitTriggerArea() const { return m_RightFruitTriggerAreaPtr; };
 
         struct TunnelPair
         {
@@ -59,6 +74,10 @@ namespace dae
         void SpawnPellet(int x, int y);
         void SpawnPowerPellet(int x, int y);
 		void SpawnGhostHouse();
+        void SpawnFruitTriggerAreas();
+
+        GameObject* m_LeftFruitTriggerAreaPtr;
+		GameObject* m_RightFruitTriggerAreaPtr;
 
 		GameObject* m_GhostHousePtr;
 
@@ -68,6 +87,7 @@ namespace dae
         glm::vec3 GridToWorldPosition(int x, int y) const;
 
         std::vector<GameObject*> m_Pellets;
+		std::vector<GameObject*> m_PowerPellets;
         std::vector<std::vector<Node*>> m_Nodes;
         Scene* m_Scene{ nullptr };
         std::string m_LevelFilePath{};
@@ -77,6 +97,8 @@ namespace dae
         float m_OffsetY{ 0.f };
         float m_BaseY{ 40.0f };
         
+        int m_CurrentLevelNumber{};
+
 		float m_NodeCenterOffsetX{ -0.4f };
 		float m_NodeCenterOffsetY{ -0.4f };
 
@@ -84,5 +106,6 @@ namespace dae
         std::vector<TunnelPair> m_TunnelPairs;
 
 		PelletColors m_PelletColors{ };
+        PelletColors m_PowerPelletColors{ };
     };
 }

@@ -41,6 +41,7 @@ namespace dae
 
         // POSITION
         void SetPosition(float x, float y, float z = 0.0f);
+        void SetPosition(glm::vec2 pos);
         glm::vec3 GetPosition() const;
         glm::vec3 m_PreviousPosition{};
 

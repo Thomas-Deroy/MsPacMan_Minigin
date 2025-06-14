@@ -18,6 +18,9 @@ namespace dae
         void SelectPreviousLetter(); 
         void ConfirmLetter();        
 
+        bool IsDone() const { return m_IsDone; }
+        std::string GetName() const { return std::string(m_Chars.begin(), m_Chars.end()); }
+
         void UpdateDisplay();
 
     private:
@@ -26,6 +29,6 @@ namespace dae
         TextComponent* m_TextComponent = nullptr;
         int m_LetterPosition = 0;
         int m_Score;
-        const std::string m_SaveFile = "highscore.dat";
+        bool m_IsDone{ false };
     };
 }

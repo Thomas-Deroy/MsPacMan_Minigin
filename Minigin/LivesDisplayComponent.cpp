@@ -19,13 +19,9 @@ namespace dae
         if (m_HealthComponent)
         {
             m_Lives = m_HealthComponent->GetHealth();
-            EventSystem::GetInstance().Subscribe(
-                m_HealthComponent->GetPlayerDiedEvent(),
-                [this](const Event&) { OnPlayerDied(); });
+            EventSystem::GetInstance().Subscribe(m_HealthComponent->GetPlayerDiedEvent(), [this](const Event&) { OnPlayerDied(); });
 
-            EventSystem::GetInstance().Subscribe(
-                m_HealthComponent->GetHealthChangedEvent(),
-                [this](const Event&) { OnHealthChanged(); });
+            EventSystem::GetInstance().Subscribe(m_HealthComponent->GetHealthChangedEvent(), [this](const Event&) { OnHealthChanged(); });
 
             m_Lives = m_HealthComponent->GetHealth();
 
@@ -39,16 +35,16 @@ namespace dae
 
     void LivesDisplayComponent::OnPlayerDied()
     {
-        UpdateRender();
+        UpdateDisplay();
     }
 
     void LivesDisplayComponent::OnHealthChanged()
     {
         m_Lives = m_HealthComponent->GetHealth();
-        UpdateRender();
+        UpdateDisplay();
     }
 
-    void LivesDisplayComponent::UpdateRender()
+    void LivesDisplayComponent::UpdateDisplay()
     {
         if (!m_HealthComponent || !GetOwner()) return;
 
@@ -114,7 +110,7 @@ namespace dae
     void LivesDisplayComponent::SetIconSpacing(float spacing)
     {
         m_IconSpacing = spacing;
-        UpdateRender();
+        UpdateDisplay();
     }
 
 }

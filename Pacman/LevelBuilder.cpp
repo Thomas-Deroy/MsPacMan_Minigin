@@ -6,6 +6,8 @@
 #include <iostream>
 #include "PowerPelletComponent.h"
 #include "GameEvents.h"
+#include "../3rdParty/nlohmann/json.hpp"
+using json = nlohmann::json;
 
 namespace dae
 {
@@ -22,14 +24,16 @@ namespace dae
         m_Nodes.clear();
     }
 
-    void LevelBuilder::LoadLevelFromFile(const std::string& filePath, Scene* scene, float offsetX, float offsetY)
+    void LevelBuilder::LoadLevelFromFile(int levelNumber, Scene* scene, float offsetX, float offsetY)
     {
         m_Scene = scene;
         m_OffsetX = offsetX;
         m_OffsetY = offsetY;
-		m_LevelFilePath = filePath;
+		std::string fullPath = "../Data/Levels.json"; 
+        m_LevelFilePath = fullPath;
+		m_CurrentLevelNumber = levelNumber;
 
-        // Clean up old nodes
+        // Clear previous nodes
         for (auto& row : m_Nodes)
         {
             for (auto& node : row)
@@ -39,36 +43,41 @@ namespace dae
         }
         m_Nodes.clear();
 
-        std::ifstream file(filePath);
+        // Load JSON
+        std::ifstream file(fullPath);
         if (!file.is_open())
         {
-            std::cerr << "Failed to open level file: " << filePath << "\n";
+            std::cerr << "Failed to open level JSON file: " << fullPath << "\n";
             return;
         }
 
-        std::string line;
-        int y = 0;
+        json levelJson;
+        file >> levelJson;
 
-        while (std::getline(file, line))
+        std::string levelKey = std::to_string(levelNumber);
+
+        const auto& levelData = levelJson["levels"][levelKey];
+
+        int y = 0;
+        for (const auto& rowStr : levelData)
         {
             std::vector<Node*> row;
+            std::string line = rowStr.get<std::string>();
             for (int x = 0; x < static_cast<int>(line.size()); ++x)
             {
                 Node* newNode = nullptr;
-
+                // Merge nodes
                 if ((line[x] == 'm' && x + 1 < line.size() && line[x + 1] == 'm') ||
                     (line[x] == 'M' && x + 1 < line.size() && line[x + 1] == 'M'))
                 {
                     float midX = x + 0.5f;
                     newNode = CreateNode(midX + offsetX, y + offsetY);
                     newNode->isMerged = true;
-
-                    if (line[x] == 'M') 
+                    if (line[x] == 'M')
                         newNode->preferNot = true;
 
                     row.emplace_back(newNode);
-                    // Skip because merged
-                    row.emplace_back(nullptr); 
+                    row.emplace_back(nullptr);
                     ++x;
                 }
                 else
@@ -84,11 +93,11 @@ namespace dae
                         newNode = CreateNode(x + offsetX, y + offsetY);
                         break;
                     case '#':
-                        //Wall
+                        // Wall
                         break;
                     case 'T':
                         newNode = CreateNode(x + offsetX, y + offsetY);
-                        newNode->isTunnel = true; 
+                        newNode->isTunnel = true;
                         break;
                     case '-':
                         newNode = CreateNode(x + offsetX, y + offsetY);
@@ -102,15 +111,62 @@ namespace dae
                     row.emplace_back(newNode);
                 }
             }
+
             m_Nodes.emplace_back(std::move(row));
             ++y;
         }
-        
+
         SpawnGhostHouse();
+        SpawnFruitTriggerAreas();
         ConnectNodes();
         m_CenterNode = FindClosestNode(glm::vec2(200.f, 250.f));
     }
 
+    void LevelBuilder::UnloadLevel()
+    {
+        for (auto* pellet : m_Pellets)
+        {
+            if (!pellet) continue;
+
+            if (auto* collider = pellet->GetComponent<ColliderComponent>())
+                CollisionSystem::GetInstance().UnregisterCollider(collider);
+
+            if (m_Scene)
+            {
+                pellet->SetParent(nullptr, false);
+                m_Scene->Remove(pellet);
+            }
+        }
+        m_Pellets.clear();
+
+        for (auto* powerPellets : m_PowerPellets)
+        {
+            if (!powerPellets) continue;
+
+            if (auto* collider = powerPellets->GetComponent<ColliderComponent>())
+                CollisionSystem::GetInstance().UnregisterCollider(collider);
+
+            if (m_Scene)
+            {
+                powerPellets->SetParent(nullptr, false);
+                m_Scene->Remove(powerPellets);
+            }
+        }
+        m_PowerPellets.clear();
+
+        for (auto& row : m_Nodes)
+        {
+            for (auto& node : row)
+            {
+                delete node;
+                node = nullptr;
+            }
+        }
+        m_Nodes.clear();
+
+        m_TunnelPairs.clear();
+        m_CenterNode = nullptr;
+    }
 
     Node* LevelBuilder::CreateNode(float x, float y)
     {
@@ -192,7 +248,9 @@ namespace dae
         }
     }
 
-    void LevelBuilder::UnloadLevel()
+
+
+    void LevelBuilder::ClearPellets()
     {
         for (auto* pellet : m_Pellets)
         {
@@ -209,31 +267,45 @@ namespace dae
         }
         m_Pellets.clear();
 
-        for (auto& row : m_Nodes)
+        for (auto* powerPellets : m_PowerPellets)
         {
-            for (auto& node : row)
+            if (!powerPellets) continue;
+
+            if (auto* collider = powerPellets->GetComponent<ColliderComponent>())
+                CollisionSystem::GetInstance().UnregisterCollider(collider);
+
+            if (m_Scene)
             {
-                delete node;
-                node = nullptr;
+                powerPellets->SetParent(nullptr, false);
+                m_Scene->Remove(powerPellets);
             }
         }
-        m_Nodes.clear();
-
-        m_TunnelPairs.clear();
-        m_CenterNode = nullptr;
+        m_PowerPellets.clear();
     }
 
     void LevelBuilder::ResetPellets()
     {
-        std::string line;
+        ClearPellets(); // Clear existing pellets
+
         std::ifstream file(m_LevelFilePath);
-        int y = 0;
-        
-        while (std::getline(file, line))
+        if (!file.is_open())
         {
+            std::cerr << "Failed to open level JSON file: " << m_LevelFilePath << "\n";
+            return;
+        }
+
+        json levelJson;
+        file >> levelJson;
+
+        std::string levelKey = std::to_string(m_CurrentLevelNumber); 
+        const auto& levelData = levelJson["levels"][levelKey];
+
+        int y = 0;
+        for (const auto& rowStr : levelData)
+        {
+            std::string line = rowStr.get<std::string>();
             for (int x = 0; x < static_cast<int>(line.size()); ++x)
             {
-
                 switch (line[x])
                 {
                 case '.':
@@ -249,16 +321,6 @@ namespace dae
             ++y;
         }
     }
-
-    bool LevelBuilder::IsWall(int x, int y)
-    {
-        if (x >= 0 && y >= 0 && y < m_Nodes.size() && x < m_Nodes[y].size())
-        {
-            return m_Nodes[y][x] == nullptr;
-        }
-        return false;
-    }
-
 
     Node* LevelBuilder::FindClosestNode(const glm::vec2& position)
     {
@@ -289,7 +351,7 @@ namespace dae
         auto pellet = std::make_unique<GameObject>();
         pellet->AddComponent<RenderComponent>("MSPC_Pellet.tga", 2.0f);
         pellet->GetComponent<RenderComponent>()->SetColor(m_PelletColors.r, m_PelletColors.g, m_PelletColors.b, m_PelletColors.alpha);
-        pellet->AddComponent<ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(0.f, 0.f), CollisionLayer::Object, false, false);
+        pellet->AddComponent<ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(0.f, 0.f), CollisionLayer::Object, false);
 
         const auto pos = GridToWorldPosition(x, y);
         pellet->SetPosition(pos.x, pos.y, pos.z);
@@ -305,12 +367,16 @@ namespace dae
     {
         auto powerPellet = std::make_unique<GameObject>();
         powerPellet->AddComponent<RenderComponent>("MSPC_Power_Pellet.tga", 2.0f);
-        powerPellet->AddComponent<ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(0.f, 0.f), CollisionLayer::Object, false, false);
+        powerPellet->GetComponent<RenderComponent>()->SetColor(m_PowerPelletColors.r, m_PowerPelletColors.g, m_PowerPelletColors.b, m_PowerPelletColors.alpha);
+        powerPellet->AddComponent<ColliderComponent>(glm::vec2(16.f, 16.f), glm::vec2(0.f, 0.f), CollisionLayer::Object, false);
 		powerPellet->AddComponent<PowerPelletComponent>();
 
         const auto pos = GridToWorldPosition(x, y);
         powerPellet->SetPosition(pos.x, pos.y, pos.z);
         powerPellet->SetRenderLayer(0);
+
+        GameObject* powerPelletPtr = powerPellet.get();
+        m_PowerPellets.emplace_back(powerPelletPtr);
 
         m_Scene->Add(powerPellet);
     }
@@ -322,10 +388,28 @@ namespace dae
 
         auto ghostHouse = std::make_unique<GameObject>();
 		m_GhostHousePtr = ghostHouse.get();
-        ghostHouse->AddComponent<ColliderComponent>(glm::vec2(COLLIDER_SIZEX, COLLIDER_SIZEY), glm::vec2(0.f, 0.f), CollisionLayer::Object, false, true);
+        ghostHouse->AddComponent<ColliderComponent>(glm::vec2(COLLIDER_SIZEX, COLLIDER_SIZEY), glm::vec2(0.f, 0.f), CollisionLayer::Object, false);
         ghostHouse->SetPosition(224.f - COLLIDER_SIZEX/2, 288.f - COLLIDER_SIZEY);
         m_Scene->Add(ghostHouse);
 	}
+
+    void LevelBuilder::SpawnFruitTriggerAreas()
+    {
+        const float COLLIDER_SIZEX = 40.f;
+        const float COLLIDER_SIZEY = 500.f;
+
+        auto fruitLeftTriggerArea = std::make_unique<GameObject>();
+        m_LeftFruitTriggerAreaPtr = fruitLeftTriggerArea.get();
+        fruitLeftTriggerArea->AddComponent<ColliderComponent>(glm::vec2(COLLIDER_SIZEX, COLLIDER_SIZEY), glm::vec2(0.f, 0.f), CollisionLayer::Object, false);
+        fruitLeftTriggerArea->SetPosition(-50.f, 40.f);
+        m_Scene->Add(fruitLeftTriggerArea);
+
+        auto fruitRightTriggerArea = std::make_unique<GameObject>();
+        m_RightFruitTriggerAreaPtr = fruitRightTriggerArea.get();
+        fruitRightTriggerArea->AddComponent<ColliderComponent>(glm::vec2(COLLIDER_SIZEX, COLLIDER_SIZEY), glm::vec2(0.f, 0.f), CollisionLayer::Object, false);
+        fruitRightTriggerArea->SetPosition(458.f, 40.f);
+        m_Scene->Add(fruitRightTriggerArea);
+    }
 
     void LevelBuilder::SetPelletColor(float r, float g, float b, float alpha)
     {
@@ -335,6 +419,15 @@ namespace dae
         m_PelletColors.alpha = alpha;
 	}
 
+    void LevelBuilder::SetPowerPelletColor(float r, float g, float b, float alpha)
+    {
+        m_PowerPelletColors.r = r;
+        m_PowerPelletColors.g = g;
+        m_PowerPelletColors.b = b;
+		m_PowerPelletColors.alpha = alpha;
+    }
+
+
     void LevelBuilder::RemovePellet(GameObject* pellet)
     {
         if (!pellet) return;
@@ -342,6 +435,11 @@ namespace dae
         m_Pellets.erase(
             std::remove(m_Pellets.begin(), m_Pellets.end(), pellet),
             m_Pellets.end()
+        );
+
+        m_PowerPellets.erase(
+            std::remove(m_PowerPellets.begin(), m_PowerPellets.end(), pellet),
+            m_PowerPellets.end()
         );
 
         if (auto* collider = pellet->GetComponent<ColliderComponent>())
@@ -364,5 +462,14 @@ namespace dae
     glm::vec3 LevelBuilder::GridToWorldPosition(int x, int y) const
     {
         return glm::vec3{ (x + m_OffsetX) * m_TileSize, m_BaseY + (y + m_OffsetY) * m_TileSize, 0.0f };
+    }
+
+    bool LevelBuilder::IsWall(int x, int y)
+    {
+        if (x >= 0 && y >= 0 && y < m_Nodes.size() && x < m_Nodes[y].size())
+        {
+            return m_Nodes[y][x] == nullptr;
+        }
+        return false;
     }
 }

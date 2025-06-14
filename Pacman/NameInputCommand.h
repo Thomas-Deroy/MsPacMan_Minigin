@@ -13,10 +13,7 @@ namespace dae
 
         void Execute() override
         {
-            auto comp = m_GameObject->GetComponent<NameInputComponent>();
-            if (comp) {
-                comp->SelectNextLetter();
-            }
+            m_GameObject->GetComponent<NameInputComponent>()->SelectNextLetter();
         }
 
     private:
@@ -30,8 +27,7 @@ namespace dae
 
         void Execute() override
         {
-            if (auto comp = m_GameObject->GetComponent<NameInputComponent>())
-                comp->SelectPreviousLetter();
+            m_GameObject->GetComponent<NameInputComponent>()->SelectPreviousLetter();
         }
 
     private:
@@ -45,8 +41,7 @@ namespace dae
 
         void Execute() override
         {
-            if (auto comp = m_GameObject->GetComponent<NameInputComponent>())
-                comp->ConfirmLetter();
+            m_GameObject->GetComponent<NameInputComponent>()->ConfirmLetter();
         }
 
     private:

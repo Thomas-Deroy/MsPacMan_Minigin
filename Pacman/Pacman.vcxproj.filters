@@ -40,19 +40,22 @@
     <Filter Include="Header Files\State">
       <UniqueIdentifier>{8c84d7a0-83a1-423b-8fb0-1682dc7e789a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\State\GhostStates">
+      <UniqueIdentifier>{46616f9b-e127-479a-9997-f3f77b8f690e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\State\FruitStates">
+      <UniqueIdentifier>{8e452386-d515-4bc7-afaa-72f2c29fe2ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\State\FruitStates">
+      <UniqueIdentifier>{e9580250-80b8-4ff6-9fb3-8b1efecd7246}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\State\GhostStates">
+      <UniqueIdentifier>{d8bad93b-42f8-4d6e-a9c7-8d9c60718890}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Minigin\LivesDisplayComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Minigin\PointsDisplayComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="TeleportComponent.cpp">
-      <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="MovementComponent.cpp">
       <Filter>Source Files\Components</Filter>
@@ -72,26 +75,11 @@
     <ClCompile Include="MenuScene.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="GhostChaseState.cpp">
-      <Filter>Source Files\State</Filter>
-    </ClCompile>
-    <ClCompile Include="GhostEatenState.cpp">
-      <Filter>Source Files\State</Filter>
-    </ClCompile>
-    <ClCompile Include="GhostFrightenedState.cpp">
-      <Filter>Source Files\State</Filter>
-    </ClCompile>
-    <ClCompile Include="GhostScatterState.cpp">
-      <Filter>Source Files\State</Filter>
-    </ClCompile>
     <ClCompile Include="NameInputComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="LevelManager.cpp">
       <Filter>Source Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="GhostExitHouseState.cpp">
-      <Filter>Source Files\State</Filter>
     </ClCompile>
     <ClCompile Include="AnimationRotationComponent.cpp">
       <Filter>Source Files\Components</Filter>
@@ -99,20 +87,44 @@
     <ClCompile Include="FruitComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="PointsDisplayComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LivesDisplayComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GhostChaseState.cpp">
+      <Filter>Source Files\State\GhostStates</Filter>
+    </ClCompile>
+    <ClCompile Include="GhostEatenState.cpp">
+      <Filter>Source Files\State\GhostStates</Filter>
+    </ClCompile>
+    <ClCompile Include="GhostExitHouseState.cpp">
+      <Filter>Source Files\State\GhostStates</Filter>
+    </ClCompile>
+    <ClCompile Include="GhostFrightenedState.cpp">
+      <Filter>Source Files\State\GhostStates</Filter>
+    </ClCompile>
+    <ClCompile Include="GhostScatterState.cpp">
+      <Filter>Source Files\State\GhostStates</Filter>
+    </ClCompile>
+    <ClCompile Include="FruitWanderState.cpp">
+      <Filter>Source Files\State\FruitStates</Filter>
+    </ClCompile>
+    <ClCompile Include="FruitHiddenState.cpp">
+      <Filter>Source Files\State\FruitStates</Filter>
+    </ClCompile>
+    <ClCompile Include="FruitExitState.cpp">
+      <Filter>Source Files\State\FruitStates</Filter>
+    </ClCompile>
+    <ClCompile Include="FruitEnterState.cpp">
+      <Filter>Source Files\State\FruitStates</Filter>
+    </ClCompile>
+    <ClCompile Include="FruitDisplayComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Minigin\HealthComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Minigin\PointsComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Minigin\PointsDisplayComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Minigin\LivesDisplayComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="..\Minigin\AddPointsCommand.h">
       <Filter>Header Files\Commands</Filter>
     </ClInclude>
@@ -121,9 +133,6 @@
     </ClInclude>
     <ClInclude Include="..\Minigin\TakeDamageCommand.h">
       <Filter>Header Files\Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="TeleportComponent.h">
-      <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\Minigin\MovementComponent.h">
       <Filter>Header Files\Components</Filter>
@@ -140,9 +149,6 @@
     <ClInclude Include="GhostAIComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="SceneSwapCommand.h">
-      <Filter>Header Files\Commands</Filter>
-    </ClInclude>
     <ClInclude Include="GameScene.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
@@ -158,28 +164,13 @@
     <ClInclude Include="GameModeCommand.h">
       <Filter>Header Files\Commands</Filter>
     </ClInclude>
-    <ClInclude Include="IGhostState.h">
-      <Filter>Header Files\State</Filter>
-    </ClInclude>
-    <ClInclude Include="GhostScatterState.h">
-      <Filter>Header Files\State</Filter>
-    </ClInclude>
-    <ClInclude Include="GhostChaseState.h">
-      <Filter>Header Files\State</Filter>
-    </ClInclude>
-    <ClInclude Include="GhostEatenState.h">
-      <Filter>Header Files\State</Filter>
-    </ClInclude>
-    <ClInclude Include="GhostFrightenedState.h">
-      <Filter>Header Files\State</Filter>
-    </ClInclude>
     <ClInclude Include="PowerPelletComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="NameInputComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="LetterUpCommand.h">
+    <ClInclude Include="NameInputCommand.h">
       <Filter>Header Files\Commands</Filter>
     </ClInclude>
     <ClInclude Include="LevelManager.h">
@@ -188,13 +179,58 @@
     <ClInclude Include="CheatCommand.h">
       <Filter>Header Files\Commands</Filter>
     </ClInclude>
-    <ClInclude Include="GhostExitHouseState.h">
-      <Filter>Header Files\State</Filter>
-    </ClInclude>
     <ClInclude Include="AnimationRotationComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="FruitComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PointsComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PointsDisplayComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="HealthComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LivesDisplayComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GhostChaseState.h">
+      <Filter>Header Files\State\GhostStates</Filter>
+    </ClInclude>
+    <ClInclude Include="GhostEatenState.h">
+      <Filter>Header Files\State\GhostStates</Filter>
+    </ClInclude>
+    <ClInclude Include="GhostExitHouseState.h">
+      <Filter>Header Files\State\GhostStates</Filter>
+    </ClInclude>
+    <ClInclude Include="GhostFrightenedState.h">
+      <Filter>Header Files\State\GhostStates</Filter>
+    </ClInclude>
+    <ClInclude Include="GhostScatterState.h">
+      <Filter>Header Files\State\GhostStates</Filter>
+    </ClInclude>
+    <ClInclude Include="IGhostState.h">
+      <Filter>Header Files\State\GhostStates</Filter>
+    </ClInclude>
+    <ClInclude Include="IFruitState.h">
+      <Filter>Header Files\State\FruitStates</Filter>
+    </ClInclude>
+    <ClInclude Include="FruitWanderState.h">
+      <Filter>Header Files\State\FruitStates</Filter>
+    </ClInclude>
+    <ClInclude Include="FruitHiddenState.h">
+      <Filter>Header Files\State\FruitStates</Filter>
+    </ClInclude>
+    <ClInclude Include="FruitExitState.h">
+      <Filter>Header Files\State\FruitStates</Filter>
+    </ClInclude>
+    <ClInclude Include="FruitEnterState.h">
+      <Filter>Header Files\State\FruitStates</Filter>
+    </ClInclude>
+    <ClInclude Include="FruitDisplayComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>

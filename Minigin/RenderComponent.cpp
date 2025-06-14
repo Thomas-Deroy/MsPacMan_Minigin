@@ -70,7 +70,16 @@ void dae::RenderComponent::Render() const
     float width = static_cast<float>(m_texture->GetWidth()) * m_scale;
     float height = static_cast<float>(m_texture->GetHeight()) * m_scale;
 
-    Renderer::GetInstance().RenderTexture(*m_texture, worldPos.x, worldPos.y, width, height, m_color, rotation.z);
+    RenderParams params{};
+    params.x = worldPos.x;
+    params.y = worldPos.y;
+    params.width = width;
+    params.height = height;
+    params.color = m_color;
+    params.rotation = rotation.z;
+    params.useRotation = true;
+
+    Renderer::GetInstance().RenderTexture(*m_texture, params);
 }
 
 void dae::RenderComponent::SetTexture(const std::string& filename)

@@ -1,14 +1,22 @@
-#include "MenuScene.h"
+// --- ENGINE --- //
+
 #include "Minigin.h"
 #include "SceneManager.h"
 #include "ResourceManager.h"
 #include "InputManager.h"
-#include "LevelManager.h"
 
 #include "TextComponent.h"
 #include "RenderComponent.h"
+
+// --- GAME --- //
+
+#include "LevelManager.h"
+#include "MenuScene.h"
+
+// Components
 #include "UIMovementComponent.h"
 
+// Commands
 #include "UIMoveCommand.h"
 #include "GameModeCommand.h"
 
@@ -18,6 +26,9 @@ void LoadMenuScene(dae::Scene& scene, dae::SceneManager& sceneManager, dae::Leve
 	{
 		auto retroFont = dae::ResourceManager::GetInstance().LoadFont("RetroFont.ttf", 18);
 		auto& input = dae::InputManager::GetInstance();
+
+		static auto& highScoreManager = dae::HighScoreManager::GetInstance();
+		highScoreManager.ReadHighScore();
 
 		auto startScreenImage = std::make_unique<dae::GameObject>();
 		startScreenImage->AddComponent<dae::RenderComponent>("MSPC_StartScreen.tga", 2.0f);
@@ -47,15 +58,29 @@ void LoadMenuScene(dae::Scene& scene, dae::SceneManager& sceneManager, dae::Leve
 		auto* uiMovement = modeSelect->GetComponent<dae::UIMovementComponent>();
 		scene.Add(modeSelect);
 
+		auto highScoreText = std::make_unique<dae::GameObject>();
+		highScoreText->AddComponent<dae::TextComponent>("HIGH SCORE", retroFont);
+		highScoreText->SetPosition(160.f, 1.0f);
+		scene.Add(highScoreText);
+
+		auto highScore = std::make_unique<dae::GameObject>();
+		highScore->AddComponent<dae::TextComponent>(highScoreManager.GetTopScoreDisplay(), retroFont);
+		highScore->SetPosition(165.f, 20.0f);
+		scene.Add(highScore);
+
 		// --- INPUTS --- //
 
-		input.BindCommand(SDLK_w, dae::KeyState::Pressed, std::make_unique<dae::UIMoveCommand>(modeSelectPtr, -1));
-		input.BindCommand(SDLK_s, dae::KeyState::Pressed, std::make_unique<dae::UIMoveCommand>(modeSelectPtr, +1));
-
-		input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, dae::KeyState::Pressed, std::make_unique<dae::UIMoveCommand>(modeSelectPtr, -1));
-		input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, dae::KeyState::Pressed, std::make_unique<dae::UIMoveCommand>(modeSelectPtr, +1));
-
-		input.BindCommand(SDLK_SPACE, dae::KeyState::Pressed, std::make_unique<dae::GameModeCommand>(uiMovement, sceneManager, levelManager, input));
-		input.BindCommand(SDL_CONTROLLER_BUTTON_A, dae::KeyState::Pressed, std::make_unique<dae::GameModeCommand>(uiMovement, sceneManager, levelManager, input));
+		if (input.IsControllerConnected(0))
+		{
+			input.BindCommand(0, SDL_CONTROLLER_BUTTON_DPAD_UP, dae::KeyState::Pressed, std::make_unique<dae::UIMoveCommand>(modeSelectPtr, -1));
+			input.BindCommand(0, SDL_CONTROLLER_BUTTON_DPAD_DOWN, dae::KeyState::Pressed, std::make_unique<dae::UIMoveCommand>(modeSelectPtr, +1));
+			input.BindCommand(0, SDL_CONTROLLER_BUTTON_A, dae::KeyState::Pressed, std::make_unique<dae::GameModeCommand>(uiMovement, sceneManager, levelManager, input));
+		}
+		else 
+		{
+			input.BindCommand(SDLK_UP, dae::KeyState::Pressed, std::make_unique<dae::UIMoveCommand>(modeSelectPtr, -1));
+			input.BindCommand(SDLK_DOWN, dae::KeyState::Pressed, std::make_unique<dae::UIMoveCommand>(modeSelectPtr, +1));
+			input.BindCommand(SDLK_SPACE, dae::KeyState::Pressed, std::make_unique<dae::GameModeCommand>(uiMovement, sceneManager, levelManager, input));
+		}
 	}
 }
