@@ -1,7 +1,7 @@
 # 🍒 Ms. Pac-Man Arcade: Custom C++ Engine
 
 <p align="center">
-  <img src="path/to/gameplay.gif" width="600" alt="Ms. Pac-Man Gameplay">
+  <img src="Data/gameplay.gif" width="600" alt="Ms. Pac-Man Gameplay">
   <br />
   <b>A faithful arcade recreation featuring a custom-built C++ engine.</b>
 </p>
@@ -31,6 +31,8 @@ The core of this project was the implementation of robust software architecture 
 
 ### 🚀 Tech Stack
 ![C++](https://img.shields.io/badge/C++-%2300599C.svg?style=flat-square&logo=c%2B%2B&logoColor=white) ![SDL2](https://img.shields.io/badge/SDL2-00599C?style=flat-square&logo=sdl&logoColor=white) ![Visual Studio](https://img.shields.io/badge/Visual%20Studio-5C2D91?style=flat-square&logo=visual-studio&logoColor=white)
+
+---
 
 # Minigin
 
